@@ -20,4 +20,6 @@
     <string name="password_doesn_t_match">Kata sandi tidak sama</string>
     <string name="back">Back</string>
     <string name="send">Kirim</string>
+    <string name="start_scan">Mulai Scan</string>
+    <string name="camera_permission_request_message">Izin kamera dibutuhkan untuk mendeteksi pada aplikasi ini</string>
 </resources>

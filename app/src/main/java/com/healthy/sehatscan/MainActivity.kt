@@ -98,7 +98,7 @@ class MainActivity : ComponentActivity() {
                     NavigationGraph(
                         navController = navController,
                         innerPadding = innerPadding,
-                        startDestination = Route.Auth.Auth.name
+                        startDestination = Route.AuthRoute.Auth.name
 //                        startDestination = Route.MainScreen.Home.route
                     )
                 }

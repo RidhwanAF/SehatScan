@@ -6,7 +6,7 @@ import com.healthy.sehatscan.R
 
 class Route {
 
-    enum class Auth {
+    enum class AuthRoute {
         Auth, // Parent
         Register,
         ForgetPassword,
@@ -18,6 +18,10 @@ class Route {
         History,
         Favorite,
         Profile
+    }
+
+    enum class ScreenRoute {
+        ImageScan
     }
 
     sealed class MainScreen(

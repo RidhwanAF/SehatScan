@@ -4,6 +4,8 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
@@ -24,6 +26,7 @@ import com.healthy.sehatscan.ui.auth.RegisterScreen
 import com.healthy.sehatscan.ui.favorite.FavoriteScreen
 import com.healthy.sehatscan.ui.history.HistoryScreen
 import com.healthy.sehatscan.ui.home.HomeScreen
+import com.healthy.sehatscan.ui.home.ScanScreen
 import com.healthy.sehatscan.ui.profile.ProfileScreen
 import com.healthy.sehatscan.utility.sharedViewModel
 
@@ -48,11 +51,11 @@ fun NavigationGraph(
         ) {
             // Auth
             navigation(
-                route = Route.Auth.Auth.name,
-                startDestination = Route.Auth.Login.name
+                route = Route.AuthRoute.Auth.name,
+                startDestination = Route.AuthRoute.Login.name
             ) {
                 composable(
-                    route = Route.Auth.Register.name,
+                    route = Route.AuthRoute.Register.name,
                     enterTransition = { slideInVertically { it } },
                     exitTransition = { slideOutVertically { it } },
                     popEnterTransition = { slideInVertically { it } },
@@ -67,7 +70,7 @@ fun NavigationGraph(
                     )
                 }
                 composable(
-                    route = Route.Auth.ForgetPassword.name,
+                    route = Route.AuthRoute.ForgetPassword.name,
                     enterTransition = { slideInVertically { it } },
                     exitTransition = { slideOutVertically { it } },
                     popEnterTransition = { slideInVertically { it } },
@@ -82,11 +85,11 @@ fun NavigationGraph(
                     )
                 }
                 composable(
-                    route = Route.Auth.Login.name,
-                    enterTransition = { scaleIn(initialScale = 0.85f) },
-                    exitTransition = { scaleOut(targetScale = 0.85f) },
-                    popEnterTransition = { scaleIn(initialScale = 0.85f) },
-                    popExitTransition = { scaleOut(targetScale = 0.85f) }
+                    route = Route.AuthRoute.Login.name,
+                    enterTransition = { fadeIn() + scaleIn(initialScale = 0.85f) },
+                    exitTransition = { scaleOut(targetScale = 0.85f) + fadeOut() },
+                    popEnterTransition = { fadeIn() },
+                    popExitTransition = { fadeOut() }
                 ) {
                     val viewModel = it.sharedViewModel<AuthViewModel>(navController)
                     LoginScreen(
@@ -102,7 +105,11 @@ fun NavigationGraph(
             composable(
                 route = Route.MainScreen.Home.route
             ) {
-                HomeScreen(navController = navController)
+                HomeScreen(
+                    navController = navController,
+                    this@SharedTransitionLayout,
+                    this@composable
+                )
             }
             composable(route = Route.MainScreen.History.route) {
                 HistoryScreen(navController = navController)
@@ -112,6 +119,15 @@ fun NavigationGraph(
             }
             composable(route = Route.MainScreen.Profile.route) {
                 ProfileScreen(navController = navController)
+            }
+
+            // Other
+            composable(route = Route.ScreenRoute.ImageScan.name) {
+                ScanScreen(
+                    navController = navController,
+                    this@SharedTransitionLayout,
+                    this@composable
+                )
             }
         }
     }

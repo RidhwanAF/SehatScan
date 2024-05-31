@@ -78,7 +78,7 @@ fun LoginScreen(
         // TODO: connect to API
 //        viewModel.login()
         navController.navigate(Route.MainScreen.Home.route) {
-            popUpTo(Route.Auth.Auth.name) {
+            popUpTo(Route.AuthRoute.Auth.name) {
                 inclusive = true
             }
             launchSingleTop = true
@@ -193,7 +193,7 @@ fun LoginScreen(
                     onClick = {
                         viewModel.clearData()
                         viewModel.clearValidation()
-                        navController.navigate(Route.Auth.ForgetPassword.name) {
+                        navController.navigate(Route.AuthRoute.ForgetPassword.name) {
                             launchSingleTop = true
                         }
                     }
@@ -216,7 +216,7 @@ fun LoginScreen(
                         onClick = {
                             viewModel.clearData()
                             viewModel.clearValidation()
-                            navController.navigate(Route.Auth.Register.name) {
+                            navController.navigate(Route.AuthRoute.Register.name) {
                                 launchSingleTop = true
                             }
                         }
