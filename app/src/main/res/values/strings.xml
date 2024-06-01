@@ -21,5 +21,21 @@
     <string name="back">Back</string>
     <string name="send">Kirim</string>
     <string name="start_scan">Mulai Scan</string>
+    <string name="scan_history">Riwayat Scan</string>
     <string name="camera_permission_request_message">Izin kamera dibutuhkan untuk mendeteksi pada aplikasi ini</string>
+    <string name="welcome_with_args">Selamat Datang, %1$s!\n</string>
+    <string name="greeting_message">Sudah menentukan minuman just sehat hari ini?</string>
+    <string name="edit">Edit</string>
+    <string name="name">Nama</string>
+    <string name="allergy">Alergi</string>
+    <string name="medical_history">Riwayat Penyakit</string>
+    <string name="name_cannot_be_empty">Nama tidak boleh kosong</string>
+    <string name="medical_history_input_info">Data Riwayat penyakit digunakan untuk merekomendasikan jus yang sesuai dengan kebutuhan kesehatan Anda.</string>
+    <string name="allergy_input_info">Data Alergi digunakan untuk merekomendasikan jus yang sesuai dengan kebutuhan kesehatan Anda.</string>
+    <string name="simpan">Simpan</string>
+    <string name="change_theme">Ganti Tema</string>
+    <string name="light">Terang</string>
+    <string name="dark">Gelap</string>
+    <string name="system_theme">Tema Sistem</string>
+    <string name="scanning">Scanning…</string>
 </resources>

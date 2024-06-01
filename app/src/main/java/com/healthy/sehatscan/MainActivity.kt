@@ -15,6 +15,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
@@ -35,10 +36,12 @@ import androidx.core.animation.doOnEnd
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.healthy.sehatscan.appsetting.domain.AppTheme
 import com.healthy.sehatscan.navigation.NavigationGraph
 import com.healthy.sehatscan.navigation.Route
 import com.healthy.sehatscan.ui.theme.SehatScanTheme
@@ -81,11 +84,22 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
+            val mainViewModel: MainViewModel = hiltViewModel()
+
+            val appTheme by mainViewModel.appTheme
+            val appThemeIcon = when (appTheme) {
+                AppTheme.LIGHT -> false
+                AppTheme.DARK -> true
+                else -> isSystemInDarkTheme()
+            }
+
             val navController = rememberNavController()
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
 
-            SehatScanTheme {
+            SehatScanTheme(
+                darkTheme = appThemeIcon
+            ) {
                 Scaffold(
                     bottomBar = {
                         BottomBarContent(
@@ -135,6 +149,7 @@ class MainActivity : ComponentActivity() {
                 bottomBarMenu.forEach {
                     val selected = it.route == currentDestination?.route
                     NavigationBarItem(
+                        alwaysShowLabel = false,
                         selected = selected,
                         onClick = {
                             navHostController.navigate(it.route) {

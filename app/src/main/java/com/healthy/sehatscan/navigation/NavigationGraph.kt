@@ -47,7 +47,7 @@ fun NavigationGraph(
             popExitTransition = { ExitTransition.None },
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding(bottom = innerPadding.calculateBottomPadding())
         ) {
             // Auth
             navigation(

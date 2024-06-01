@@ -31,7 +31,7 @@ class TfLiteFruitClassifier(
         try {
             classifier = ImageClassifier.createFromFileAndOptions(
                 context,
-                "food.tflite", // TODO : Fix model
+                "landmark.tflite", // TODO : Fix model
                 options
             )
         } catch (e: Exception) {
