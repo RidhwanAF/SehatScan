@@ -12,7 +12,3 @@ fun Bitmap.centerCrop(desiredWidth: Int, desiredHeight: Int): Bitmap {
 
     return Bitmap.createBitmap(this, xStart, yStart, desiredWidth, desiredHeight)
 }
-
-fun Bitmap.resize(newWidth: Int, newHeight: Int): Bitmap {
-    return Bitmap.createScaledBitmap(this, newWidth, newHeight, true)
-}

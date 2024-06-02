@@ -37,5 +37,5 @@
     <string name="light">Terang</string>
     <string name="dark">Gelap</string>
     <string name="system_theme">Tema Sistem</string>
-    <string name="scanning">Scanning…</string>
+    <string name="detecting">Mendeteksi…</string>
 </resources>

@@ -31,7 +31,7 @@ class TfLiteFruitClassifier(
         try {
             classifier = ImageClassifier.createFromFileAndOptions(
                 context,
-                "landmark.tflite", // TODO : Fix model
+                "food.tflite", // TODO : Fix model
                 options
             )
         } catch (e: Exception) {
@@ -61,11 +61,10 @@ class TfLiteFruitClassifier(
 
     private fun getOrientationFromRotation(rotation: Int): ImageProcessingOptions.Orientation {
         return when (rotation) {
-            Surface.ROTATION_0 -> ImageProcessingOptions.Orientation.TOP_LEFT
-            Surface.ROTATION_90 -> ImageProcessingOptions.Orientation.RIGHT_TOP
-            Surface.ROTATION_180 -> ImageProcessingOptions.Orientation.BOTTOM_RIGHT
-            Surface.ROTATION_270 -> ImageProcessingOptions.Orientation.LEFT_BOTTOM
-            else -> ImageProcessingOptions.Orientation.TOP_LEFT
+            Surface.ROTATION_270 -> ImageProcessingOptions.Orientation.BOTTOM_RIGHT
+            Surface.ROTATION_90 -> ImageProcessingOptions.Orientation.TOP_LEFT
+            Surface.ROTATION_180 -> ImageProcessingOptions.Orientation.RIGHT_BOTTOM
+            else -> ImageProcessingOptions.Orientation.RIGHT_TOP
         }
     }
 }
