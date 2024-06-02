@@ -44,7 +44,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -114,14 +113,11 @@ fun ScanScreen(
     var classifications by remember {
         mutableStateOf(emptyList<Classification>())
     }
-    LaunchedEffect(classifications) {
-        classifications = classifications.sortedByDescending { it.score }
-    }
     val analyzer = remember {
         FruitImageAnalyzer(
             classifier = TfLiteFruitClassifier(context.applicationContext),
-            onResults = {
-                classifications = it
+            onResults = { results ->
+                classifications = results.sortedByDescending { it.score }
             }
         )
     }
