@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.view.Surface
 import com.healthy.sehatscan.classification.domain.Classification
 import com.healthy.sehatscan.classification.domain.FruitClassifier
+import org.tensorflow.lite.support.common.ops.NormalizeOp
 import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.task.core.BaseOptions
@@ -31,7 +32,7 @@ class TfLiteFruitClassifier(
         try {
             classifier = ImageClassifier.createFromFileAndOptions(
                 context,
-                "food.tflite", // TODO : Fix model
+                "landmark.tflite", // TODO : Fix model
                 options
             )
         } catch (e: Exception) {
@@ -43,7 +44,13 @@ class TfLiteFruitClassifier(
         if (classifier == null) {
             setupClassifier()
         }
-        val imageProcessor = ImageProcessor.Builder().build()
+//        val normalizeOp = NormalizeOp(
+//            127.5f,
+//            127.5f
+//        )
+        val imageProcessor = ImageProcessor.Builder()
+//            .add(normalizeOp)
+            .build()
         val tensorImage = imageProcessor.process(TensorImage.fromBitmap(bitmap))
 
         val imageProcessingOptions = ImageProcessingOptions.builder()

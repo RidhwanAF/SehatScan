@@ -38,4 +38,5 @@
     <string name="dark">Gelap</string>
     <string name="system_theme">Tema Sistem</string>
     <string name="detecting">Mendeteksi…</string>
+    <string name="result">Hasil</string>
 </resources>

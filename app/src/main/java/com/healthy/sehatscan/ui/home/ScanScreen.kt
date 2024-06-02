@@ -14,16 +14,22 @@ import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -38,6 +44,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,10 +52,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat
@@ -62,7 +71,10 @@ import com.healthy.sehatscan.classification.presentation.FruitImageAnalyzer
 import com.healthy.sehatscan.utility.dashedBorder
 
 @SuppressLint("SourceLockedOrientationActivity")
-@OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
+@OptIn(
+    ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun ScanScreen(
     navController: NavHostController,
@@ -102,6 +114,9 @@ fun ScanScreen(
     var classifications by remember {
         mutableStateOf(emptyList<Classification>())
     }
+    LaunchedEffect(classifications) {
+        classifications = classifications.sortedByDescending { it.score }
+    }
     val analyzer = remember {
         FruitImageAnalyzer(
             classifier = TfLiteFruitClassifier(context.applicationContext),
@@ -132,14 +147,14 @@ fun ScanScreen(
                         ) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_camera_enhance),
-                                contentDescription = stringResource(R.string.detecting),
+                                contentDescription = stringResource(R.string.app_name),
                                 modifier = Modifier
                                     .sharedElement(
                                         state = rememberSharedContentState(key = "menu-scan-icon-fab"),
                                         animatedVisibilityScope = animatedContentScope
                                     )
                             )
-                            Text(text = stringResource(R.string.detecting))
+                            Text(text = stringResource(R.string.app_name))
                         }
                     },
                     navigationIcon = {
@@ -169,25 +184,62 @@ fun ScanScreen(
         ) { innerPadding ->
             Box {
                 CameraPreview(modifier = Modifier.fillMaxSize(), controller = controller)
-                Box(
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
-                        .padding(16.dp)
-                        .scale(scaleDashAnimation)
-                        .dashedBorder(4.dp, MaterialTheme.colorScheme.primaryContainer, 16.dp)
-                        .fillMaxWidth()
-                        .aspectRatio(1f)
+                        .offset(y = (-32).dp)
                         .align(Alignment.Center)
-                )
+                ) {
+                    Text(
+                        text = stringResource(R.string.detecting),
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                            .background(
+                                MaterialTheme.colorScheme.primaryContainer,
+                                CircleShape
+                            )
+                            .padding(16.dp)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .scale(scaleDashAnimation)
+                            .dashedBorder(4.dp, MaterialTheme.colorScheme.primaryContainer, 16.dp)
+                            .fillMaxWidth()
+                            .aspectRatio(1f)
+                    )
+                }
                 LazyRow(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(innerPadding)
                         .align(Alignment.BottomCenter),
-                    contentPadding = PaddingValues(horizontal = 16.dp)
+                    contentPadding = PaddingValues(end = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    stickyHeader {
+                        if (classifications.isNotEmpty()) {
+                            Text(
+                                text = stringResource(R.string.result),
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .shadow(
+                                        2.dp,
+                                        RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp),
+                                        clip = true
+                                    )
+                                    .background(
+                                        MaterialTheme.colorScheme.surface,
+                                        RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
+                                    )
+                                    .padding(16.dp)
+                            )
+                        }
+                    }
                     items(classifications) { item ->
                         ElevatedSuggestionChip(
                             onClick = { /*TODO*/ },
+                            shape = CircleShape,
                             label = {
                                 Text(
                                     text = item.name,
