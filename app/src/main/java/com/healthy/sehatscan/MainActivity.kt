@@ -86,6 +86,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             val mainViewModel: MainViewModel = hiltViewModel()
 
+            val isLoggedIn = mainViewModel.userToken.trim().isNotEmpty()
+
+            println(mainViewModel.userToken)
+
             val appTheme by mainViewModel.appTheme
             val appThemeIcon = when (appTheme) {
                 AppTheme.LIGHT -> false
@@ -112,8 +116,7 @@ class MainActivity : ComponentActivity() {
                     NavigationGraph(
                         navController = navController,
                         innerPadding = innerPadding,
-                        startDestination = Route.AuthRoute.Auth.name
-//                        startDestination = Route.MainScreen.Home.route
+                        startDestination = if (isLoggedIn) Route.MainScreen.Home.route else Route.AuthRoute.Auth.name
                     )
                 }
             }

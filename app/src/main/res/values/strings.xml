@@ -24,7 +24,7 @@
     <string name="scan_history">Riwayat Scan</string>
     <string name="camera_permission_request_message">Izin kamera dibutuhkan untuk mendeteksi pada aplikasi ini</string>
     <string name="welcome_with_args">Selamat Datang, %1$s!\n</string>
-    <string name="greeting_message">Sudah menentukan minuman just sehat hari ini?</string>
+    <string name="greeting_message">Sudah menentukan minuman sehat untuk hari ini?</string>
     <string name="edit">Edit</string>
     <string name="name">Nama</string>
     <string name="allergy">Alergi</string>
@@ -45,4 +45,5 @@
     <string name="close">Tutup</string>
     <string name="failed">Gagal</string>
     <string name="login_success">Berhasil Login</string>
+    <string name="logout">Logout</string>
 </resources>

@@ -61,7 +61,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.healthy.sehatscan.MainViewModel
 import com.healthy.sehatscan.R
 import com.healthy.sehatscan.navigation.Route
 
@@ -78,6 +80,8 @@ fun HomeScreen(
     val mutableInteractionSource = remember {
         mutableStateOf(MutableInteractionSource())
     }
+
+    val mainViewModel: MainViewModel = hiltViewModel()
 
     // FAB animation
     val fabColor = Brush.linearGradient(
@@ -115,9 +119,6 @@ fun HomeScreen(
             context.startActivity(intent)
         }
     }
-
-    // User Data
-    val userName = "Adler"
 
     with(sharedTransitionScope) {
         Scaffold(
@@ -208,7 +209,7 @@ fun HomeScreen(
                                     )
                                 )
                             ),
-                        ) { append(stringResource(R.string.welcome_with_args, userName)) }
+                        ) { append(stringResource(R.string.welcome_with_args, mainViewModel.userName)) }
                         withStyle(
                             style = SpanStyle(
                                 fontSize = 20.sp,

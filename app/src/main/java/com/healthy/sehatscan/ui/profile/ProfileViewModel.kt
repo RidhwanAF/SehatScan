@@ -7,19 +7,24 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.healthy.sehatscan.appsetting.domain.AppSettingRepository
 import com.healthy.sehatscan.appsetting.domain.AppTheme
+import com.healthy.sehatscan.data.local.AuthDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
-    private val appSettingRepository: AppSettingRepository
+    private val appSettingRepository: AppSettingRepository,
+    private val authDataStore: AuthDataStore
 ) : ViewModel() {
 
     // App Theme
     val appTheme = appSettingRepository.appTheme
 
     // User Data
+    var email by mutableStateOf("")
+        private set
+
     var userName by mutableStateOf("")
         private set
 
@@ -30,6 +35,16 @@ class ProfileViewModel @Inject constructor(
         private set
 
     init {
+        viewModelScope.launch {
+            authDataStore.getNamePreferenceState().collect() {
+                userName = it
+            }
+        }
+        viewModelScope.launch {
+            authDataStore.getEmailPreferenceState().collect() {
+                email = it
+            }
+        }
         viewModelScope.launch {
             appSettingRepository.getThemePreferenceState()
         }
@@ -53,6 +68,13 @@ class ProfileViewModel @Inject constructor(
 
     fun onAllergyChange(value: String) {
         allergy = value
+    }
+
+    // OnLogout
+    fun logout() {
+        viewModelScope.launch {
+            authDataStore.destroySession()
+        }
     }
 
 }

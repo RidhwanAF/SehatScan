@@ -4,6 +4,7 @@ import android.content.Context
 import com.healthy.sehatscan.BuildConfig
 import com.healthy.sehatscan.appsetting.data.AppSettingDataStore
 import com.healthy.sehatscan.appsetting.domain.AppSettingRepository
+import com.healthy.sehatscan.data.local.AuthDataStore
 import com.healthy.sehatscan.data.remote.ApiService
 import dagger.Module
 import dagger.Provides
@@ -29,6 +30,11 @@ object AppModule {
     @Singleton
     fun provideAppSettingDataStore(@ApplicationContext context: Context): AppSettingDataStore =
         AppSettingDataStore(context)
+
+    @Provides
+    @Singleton
+    fun provideAuthDataStore(@ApplicationContext context: Context): AuthDataStore =
+        AuthDataStore(context)
 
     @Provides
     @Singleton

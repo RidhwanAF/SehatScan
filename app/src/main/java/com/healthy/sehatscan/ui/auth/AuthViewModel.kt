@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import com.healthy.sehatscan.data.local.AuthDataStore
 import com.healthy.sehatscan.data.remote.ApiService
 import com.healthy.sehatscan.data.remote.auth.response.UserLogin
 import com.healthy.sehatscan.data.remote.auth.response.UserRegister
@@ -17,8 +18,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-    private val apiService: ApiService
+    private val apiService: ApiService,
+    private val authDataStore: AuthDataStore
 ) : ViewModel() {
+
+    var userToken by mutableStateOf("")
+        private set
 
     // Result
     var isLoading by mutableStateOf(false)
@@ -159,6 +164,12 @@ class AuthViewModel @Inject constructor(
                 val response = apiService.login(requestBody)
                 if (response.isSuccessful) {
                     loginResult = response.body()
+                    // Save Session
+                    saveUserToken(response.body()?.data?.token ?: "")
+                    authDataStore.setUserData(
+                        response.body()?.data?.user?.email ?: "",
+                        response.body()?.data?.user?.name ?: ""
+                    )
                     isLoading = false
                 } else {
                     val errMsg = response.errorBody()?.string()
@@ -177,6 +188,21 @@ class AuthViewModel @Inject constructor(
             } catch (e: Exception) {
                 isLoading = false
                 e.printStackTrace()
+            }
+        }
+    }
+
+    fun saveUserToken(token: String) {
+        viewModelScope.launch(Dispatchers.IO) {
+            authDataStore.setTokenPreferenceState(token)
+        }
+        getUserToken()
+    }
+
+    private fun getUserToken() {
+        viewModelScope.launch(Dispatchers.IO) {
+            authDataStore.getTokenPreferenceState().collect {
+                userToken = it
             }
         }
     }

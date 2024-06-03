@@ -11,9 +11,30 @@ class UserLogin {
 
 	data class LoginResponse(
 		@field:SerializedName("data")
-		val data: Any? = null,
+		val data: LoginData? = null,
 
 		@field:SerializedName("meta")
 		val meta: ResponseMetaData? = null
+	)
+
+	data class User(
+
+		@field:SerializedName("name")
+		val name: String? = null,
+
+		@field:SerializedName("id")
+		val id: Int? = null,
+
+		@field:SerializedName("email")
+		val email: String? = null
+	)
+
+	data class LoginData(
+
+		@field:SerializedName("user")
+		val user: User? = null,
+
+		@field:SerializedName("token")
+		val token: String? = null
 	)
 }

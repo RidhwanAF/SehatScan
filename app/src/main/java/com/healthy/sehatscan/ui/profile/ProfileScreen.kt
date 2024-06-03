@@ -23,6 +23,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -191,7 +192,7 @@ fun ProfileScreen(
             ) {
                 ProfileItem(
                     title = stringResource(R.string.email),
-                    subtitle = "johnadler@gmail.com", // TODO: EMAIL
+                    subtitle = viewModel.email, // TODO: EMAIL
                 )
                 listUserData.forEachIndexed { index, title ->
                     ProfileItem(
@@ -204,6 +205,18 @@ fun ProfileScreen(
                         onClick = { isOnEdit = index }
                     )
                 }
+            }
+            Button(
+                onClick = { viewModel.logout() },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(text = stringResource(R.string.logout))
             }
             Spacer(modifier = Modifier.weight(1f))
             Text(

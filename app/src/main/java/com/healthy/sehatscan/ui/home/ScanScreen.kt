@@ -16,8 +16,6 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,7 +44,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -71,7 +68,6 @@ import com.healthy.sehatscan.classification.domain.Classification
 import com.healthy.sehatscan.classification.presentation.CameraPreview
 import com.healthy.sehatscan.classification.presentation.FruitImageAnalyzer
 import com.healthy.sehatscan.utility.dashedBorder
-import kotlinx.coroutines.delay
 
 @SuppressLint("SourceLockedOrientationActivity")
 @OptIn(
@@ -84,12 +80,6 @@ fun ScanScreen(
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope
 ) {
-    var onStarted by remember {
-        mutableStateOf(false)
-    }
-    val mutableInteractionSource = remember {
-        MutableInteractionSource()
-    }
     val context = LocalContext.current
     val activity = context as? Activity
 
@@ -142,18 +132,6 @@ fun ScanScreen(
             )
         }
     }
-
-//    LaunchedEffect(onStarted) {
-//        if (onStarted) {
-//            val randomLaunch = (2000L..5000L).random()
-//            val randomScoreFloat = (60..90).random().toFloat() / 100
-//
-//            delay(randomLaunch)
-//            classifications = listOf(
-//                Classification(name = "Apel", score = randomScoreFloat)
-//            )
-//        }
-//    }
 
     with(sharedTransitionScope) {
         Scaffold(
@@ -211,12 +189,6 @@ fun ScanScreen(
                     modifier = Modifier
                         .offset(y = (-32).dp)
                         .align(Alignment.Center)
-                        .clickable(
-                            interactionSource = mutableInteractionSource,
-                            indication = null
-                        ) {
-                            onStarted = true // TODO : Fix later
-                        }
                 ) {
                     Text(
                         text = stringResource(R.string.detecting),
@@ -251,13 +223,6 @@ fun ScanScreen(
                                 text = stringResource(R.string.result),
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier
-                                    .clickable(
-                                        interactionSource = mutableInteractionSource,
-                                        indication = null
-                                    ) {
-                                        onStarted = false
-                                        classifications = emptyList() // TODO : Fix it later
-                                    }
                                     .shadow(
                                         2.dp,
                                         RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp),

@@ -30,6 +30,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,6 +61,8 @@ fun LoginScreen(
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope
 ) {
+    val userToken = viewModel.userToken
+
     val focusManager = LocalFocusManager.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val scrollState = rememberScrollState()
@@ -90,6 +93,17 @@ fun LoginScreen(
 
     // Validation
     val isLoading = viewModel.isLoading
+
+    LaunchedEffect(Unit, viewModel.loginResult, userToken) {
+        if (userToken.isNotEmpty()) {
+            navController.navigate(Route.MainScreen.Home.route) {
+                popUpTo(Route.AuthRoute.Auth.name) {
+                    inclusive = true
+                }
+                launchSingleTop = true
+            }
+        }
+    }
 
     with(sharedTransitionScope) {
         Scaffold(
@@ -240,36 +254,14 @@ fun LoginScreen(
                 }
             }
 
-            viewModel.loginResult?.let {
-                // TODO: On Success
-                navController.navigate(Route.MainScreen.Home.route) {
-                    popUpTo(Route.AuthRoute.Auth.name) {
-                        inclusive = true
-                    }
-                    launchSingleTop = true
-                }
-            }
-
-            viewModel.errorMessage?.let { // TODO: Change with real
-                AuthSuccessAlertDialog(
+            viewModel.errorMessage?.let {
+                AuthErrorAlertDialog(
                     message = it,
                     onDismiss = {
                         viewModel.clearResult()
-                        navController.navigate(Route.MainScreen.Home.route) {
-                            popUpTo(Route.AuthRoute.Auth.name) {
-                                inclusive = true
-                            }
-                            launchSingleTop = true
-                        }
                     },
                     onClicked = {
                         viewModel.clearResult()
-                        navController.navigate(Route.MainScreen.Home.route) {
-                            popUpTo(Route.AuthRoute.Auth.name) {
-                                inclusive = true
-                            }
-                            launchSingleTop = true
-                        }
                     }
                 )
             }
