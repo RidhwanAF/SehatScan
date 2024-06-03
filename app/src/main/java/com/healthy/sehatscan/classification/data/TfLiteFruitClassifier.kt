@@ -32,7 +32,7 @@ class TfLiteFruitClassifier(
         try {
             classifier = ImageClassifier.createFromFileAndOptions(
                 context,
-                "landmark.tflite", // TODO : Fix model
+                "model.tflite",
                 options
             )
         } catch (e: Exception) {
@@ -44,12 +44,7 @@ class TfLiteFruitClassifier(
         if (classifier == null) {
             setupClassifier()
         }
-//        val normalizeOp = NormalizeOp(
-//            127.5f,
-//            127.5f
-//        )
         val imageProcessor = ImageProcessor.Builder()
-//            .add(normalizeOp)
             .build()
         val tensorImage = imageProcessor.process(TensorImage.fromBitmap(bitmap))
 
@@ -61,7 +56,7 @@ class TfLiteFruitClassifier(
 
         return results?.flatMap { classifications ->
             classifications.categories.map { category ->
-                Classification(name = category.displayName, score = category.score)
+                Classification(name = category.label, score = category.score)
             }
         }?.distinctBy { it.name } ?: emptyList()
     }

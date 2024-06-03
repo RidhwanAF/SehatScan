@@ -17,8 +17,7 @@ class FruitImageAnalyzer(
             val rotationDegrees = image.imageInfo.rotationDegrees
             val bitmap = image
                 .toBitmap()
-                .centerCrop(321, 321)
-//                .resize( 224, 513) // TODO : adjust tf input
+                .centerCrop(321, 321) // TODO
 
             val results = classifier.classify(bitmap, rotationDegrees)
             onResults(results)

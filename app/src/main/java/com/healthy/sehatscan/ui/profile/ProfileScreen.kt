@@ -189,6 +189,10 @@ fun ProfileScreen(
             ElevatedCard(
                 modifier = Modifier.padding(16.dp)
             ) {
+                ProfileItem(
+                    title = stringResource(R.string.email),
+                    subtitle = "johnadler@gmail.com", // TODO: EMAIL
+                )
                 listUserData.forEachIndexed { index, title ->
                     ProfileItem(
                         title = title,
@@ -243,7 +247,7 @@ private fun ProfileItem(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String,
-    onClick: () -> Unit
+    onClick: (() -> Unit)? = null
 ) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
@@ -264,17 +268,21 @@ private fun ProfileItem(
             )
             Text(text = subtitle)
         }
-        IconButton(
-            onClick = { onClick() },
-            colors = IconButtonDefaults.iconButtonColors(
-                contentColor = MaterialTheme.colorScheme.secondary
-            ),
-            modifier = modifier
-        ) {
-            Icon(
-                imageVector = Icons.Default.Edit,
-                contentDescription = stringResource(R.string.edit)
-            )
+        if (onClick != null) {
+            IconButton(
+                onClick = {
+                    onClick()
+                },
+                colors = IconButtonDefaults.iconButtonColors(
+                    contentColor = MaterialTheme.colorScheme.secondary
+                ),
+                modifier = modifier
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = stringResource(R.string.edit)
+                )
+            }
         }
     }
 }

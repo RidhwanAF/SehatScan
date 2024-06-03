@@ -15,13 +15,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -84,8 +89,9 @@ fun RegisterScreen(
     }
     val isButtonEnabled by remember(viewModel) {
         derivedStateOf {
-            !viewModel.emailError && !viewModel.passwordError &&
+            !viewModel.nameError && !viewModel.emailError && !viewModel.passwordError &&
                     !viewModel.confirmPasswordError &&
+                    viewModel.name.isNotEmpty() &&
                     viewModel.email.isNotEmpty() &&
                     viewModel.password.isNotEmpty() &&
                     viewModel.confirmPassword.isNotEmpty()
@@ -94,9 +100,7 @@ fun RegisterScreen(
 
     fun onRegister() {
         focusManager.clearFocus()
-        // TODO: connect to API
-//        viewModel.register()
-        navController.navigateUp()
+        viewModel.register()
     }
 
     DisposableEffect(Unit) {
@@ -105,6 +109,9 @@ fun RegisterScreen(
             viewModel.clearData()
         }
     }
+
+    // Validation
+    val isLoading = viewModel.isLoading
 
     with(sharedTransitionScope) {
         Scaffold(
@@ -145,6 +152,27 @@ fun RegisterScreen(
                     .verticalScroll(scrollState)
             ) {
                 HorizontalDivider(modifier = Modifier.padding(bottom = 16.dp))
+                OutlinedTextField(
+                    value = viewModel.name,
+                    onValueChange = {
+                        viewModel.onNameChange(it)
+                        viewModel.onValidatingName()
+                    },
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
+                    ),
+                    isError = viewModel.nameError,
+                    supportingText = {
+                        if (viewModel.nameError && viewModel.name.isEmpty()) {
+                            Text(text = stringResource(R.string.name_cannot_be_empty))
+                        }
+                    },
+                    label = { Text(stringResource(R.string.name)) },
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.fillMaxWidth()
+                )
                 OutlinedTextField(
                     value = viewModel.email,
                     onValueChange = {
@@ -244,14 +272,22 @@ fun RegisterScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Button(
-                    onClick = { onRegister() },
+                    onClick = {
+                        if (!isLoading) {
+                            onRegister()
+                        }
+                    },
                     shape = RoundedCornerShape(16.dp),
                     enabled = isButtonEnabled,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp)
                 ) {
-                    Text(stringResource(R.string.register).uppercase())
+                    if (isLoading) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
+                    } else {
+                        Text(stringResource(R.string.register).uppercase())
+                    }
                 }
                 Spacer(modifier = Modifier.weight(1f))
                 Row(
@@ -265,6 +301,94 @@ fun RegisterScreen(
                     }
                 }
             }
+
+            viewModel.registerResult?.let {
+                AuthSuccessAlertDialog(
+                    message = it.meta?.message ?: stringResource(R.string.account_created),
+                    onDismiss = {
+                        navController.navigateUp()
+                        viewModel.clearResult()
+                    },
+                    onClicked = {
+                        navController.navigateUp()
+                        viewModel.clearResult()
+                    }
+                )
+            }
+
+            viewModel.errorMessage?.let {
+                AuthErrorAlertDialog(
+                    message = it,
+                    onDismiss = {
+                        viewModel.clearResult()
+                    },
+                    onClicked = {
+                        viewModel.clearResult()
+                    }
+                )
+            }
         }
     }
+}
+
+@Composable
+fun AuthSuccessAlertDialog(message: String, onDismiss: () -> Unit, onClicked: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = {
+            onDismiss()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onClicked()
+                }
+            ) {
+                Text(text = stringResource(R.string.ok))
+            }
+        },
+        icon = {
+            Icon(
+                imageVector = Icons.Default.CheckCircle,
+                contentDescription = stringResource(R.string.success),
+                tint = MaterialTheme.colorScheme.primary
+            )
+        },
+        title = {
+            Text(text = stringResource(R.string.success))
+        },
+        text = {
+            Text(text = message)
+        }
+    )
+}
+
+@Composable
+fun AuthErrorAlertDialog(message: String, onDismiss: () -> Unit, onClicked: () -> Unit) {
+        AlertDialog(
+            onDismissRequest = {
+                onDismiss()
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onClicked()
+                    }
+                ) {
+                    Text(text = stringResource(R.string.close))
+                }
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = stringResource(R.string.failed),
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
+            title = {
+                Text(text = stringResource(R.string.failed))
+            },
+            text = {
+                Text(text = message)
+            }
+        )
 }

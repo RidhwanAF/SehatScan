@@ -39,4 +39,10 @@
     <string name="system_theme">Tema Sistem</string>
     <string name="detecting">Mendeteksi…</string>
     <string name="result">Hasil</string>
+    <string name="ok">Ok</string>
+    <string name="success">Berhasil</string>
+    <string name="account_created">Berhasil membuat akun</string>
+    <string name="close">Tutup</string>
+    <string name="failed">Gagal</string>
+    <string name="login_success">Berhasil Login</string>
 </resources>

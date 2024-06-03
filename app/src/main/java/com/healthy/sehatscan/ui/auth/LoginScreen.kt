@@ -17,10 +17,12 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -36,7 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -59,7 +60,6 @@ fun LoginScreen(
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope
 ) {
-    val context = LocalContext.current
     val focusManager = LocalFocusManager.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val scrollState = rememberScrollState()
@@ -78,14 +78,7 @@ fun LoginScreen(
 
     fun onLogin() {
         focusManager.clearFocus()
-        // TODO: connect to API
-//        viewModel.login()
-        navController.navigate(Route.MainScreen.Home.route) {
-            popUpTo(Route.AuthRoute.Auth.name) {
-                inclusive = true
-            }
-            launchSingleTop = true
-        }
+        viewModel.login()
     }
 
     DisposableEffect(Unit) {
@@ -94,6 +87,9 @@ fun LoginScreen(
             viewModel.clearData()
         }
     }
+
+    // Validation
+    val isLoading = viewModel.isLoading
 
     with(sharedTransitionScope) {
         Scaffold(
@@ -141,7 +137,7 @@ fun LoginScreen(
                         keyboardType = KeyboardType.Email,
                         imeAction = ImeAction.Next
                     ),
-                    isError = viewModel.emailError,
+                    isError = viewModel.errorMessage != null || viewModel.emailError,
                     supportingText = {
                         if (viewModel.emailError && viewModel.email.isEmpty())
                             Text(text = stringResource(R.string.email_cannot_be_empty))
@@ -171,7 +167,7 @@ fun LoginScreen(
                         if (viewModel.passwordError && viewModel.password.isEmpty())
                             Text(text = stringResource(R.string.password_cannot_be_empty))
                     },
-                    isError = viewModel.passwordError,
+                    isError = viewModel.errorMessage != null || viewModel.passwordError,
                     visualTransformation = if (isPasswordVisible) VisualTransformation.None else passwordVisualTransformation,
                     trailingIcon = {
                         IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
@@ -186,13 +182,19 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Button(
-                    onClick = { onLogin() },
+                    onClick = {
+                        if (!isLoading) onLogin()
+                    },
                     shape = RoundedCornerShape(16.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp)
                 ) {
-                    Text(stringResource(R.string.login).uppercase())
+                    if (isLoading) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
+                    } else {
+                        Text(stringResource(R.string.login).uppercase())
+                    }
                 }
                 TextButton(
                     onClick = {
@@ -236,6 +238,40 @@ fun LoginScreen(
                         )
                     }
                 }
+            }
+
+            viewModel.loginResult?.let {
+                // TODO: On Success
+                navController.navigate(Route.MainScreen.Home.route) {
+                    popUpTo(Route.AuthRoute.Auth.name) {
+                        inclusive = true
+                    }
+                    launchSingleTop = true
+                }
+            }
+
+            viewModel.errorMessage?.let { // TODO: Change with real
+                AuthSuccessAlertDialog(
+                    message = it,
+                    onDismiss = {
+                        viewModel.clearResult()
+                        navController.navigate(Route.MainScreen.Home.route) {
+                            popUpTo(Route.AuthRoute.Auth.name) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
+                    },
+                    onClicked = {
+                        viewModel.clearResult()
+                        navController.navigate(Route.MainScreen.Home.route) {
+                            popUpTo(Route.AuthRoute.Auth.name) {
+                                inclusive = true
+                            }
+                            launchSingleTop = true
+                        }
+                    }
+                )
             }
         }
     }
