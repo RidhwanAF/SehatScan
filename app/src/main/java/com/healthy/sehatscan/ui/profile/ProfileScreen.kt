@@ -9,21 +9,35 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -34,10 +48,12 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -59,6 +75,9 @@ import androidx.navigation.NavHostController
 import com.healthy.sehatscan.BuildConfig
 import com.healthy.sehatscan.R
 import com.healthy.sehatscan.appsetting.domain.AppTheme
+import com.healthy.sehatscan.data.remote.user.response.DiseaseDataItem
+import com.healthy.sehatscan.ui.auth.AuthErrorAlertDialog
+import com.healthy.sehatscan.ui.auth.AuthSuccessAlertDialog
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -107,13 +126,25 @@ fun ProfileScreen(
         showAppThemeText = false
     }
 
+    // Menu
     val listUserData = listOf(
         stringResource(R.string.name),
         stringResource(R.string.medical_history),
         stringResource(R.string.allergy)
     )
 
+    // Data
+    val listSelectedDisease by remember(viewModel.medicalListId) {
+        derivedStateOf {
+            viewModel.medicalListId.mapNotNull { id ->
+                viewModel.diseaseListResult.find { it?.diseaseId == id }?.diseaseName
+            }
+        }
+    }
+
     // Action
+    var confirmChangePasswordDialog by remember { mutableStateOf(false) }
+    var confirmLogoutDialog by remember { mutableStateOf(false) }
     var isOnEdit by remember { mutableStateOf<Int?>(null) }
 
     Scaffold(
@@ -199,15 +230,37 @@ fun ProfileScreen(
                         title = title,
                         subtitle = when (index) {
                             0 -> viewModel.userName
-                            1 -> viewModel.medicalHistory
+                            1 -> if (listSelectedDisease.isEmpty()) stringResource(R.string.nothing) else listSelectedDisease.joinToString { it }
                             else -> viewModel.allergy
                         },
-                        onClick = { isOnEdit = index }
+                        onClick = {
+                            when (index) {
+                                0 -> isOnEdit = 0
+                                1 -> {
+                                    viewModel.getDiseaseList() // TODO: adjust
+                                }
+                                else -> isOnEdit = 2
+                            }
+                            isOnEdit = index
+                        }
                     )
                 }
             }
+            TextButton(
+                onClick = {
+                    if (!viewModel.isForgetPassLoading)
+                        confirmChangePasswordDialog = true
+                },
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            ) {
+                if (viewModel.isForgetPassLoading) {
+                    CircularProgressIndicator()
+                } else {
+                    Text(text = stringResource(R.string.change_password))
+                }
+            }
             Button(
-                onClick = { viewModel.logout() },
+                onClick = { confirmLogoutDialog = true },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error,
                     contentColor = MaterialTheme.colorScheme.onError
@@ -225,6 +278,30 @@ fun ProfileScreen(
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Light,
                 modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        viewModel.forgetPasswordResult?.let {
+            AuthSuccessAlertDialog(
+                message = it.meta?.message ?: stringResource(R.string.password_reset_sent),
+                onDismiss = {
+                    viewModel.clearResult()
+                },
+                onClicked = {
+                    viewModel.clearResult()
+                }
+            )
+        }
+
+        viewModel.forgetPassErrorMessage?.let {
+            AuthErrorAlertDialog(
+                message = it,
+                onDismiss = {
+                    viewModel.clearResult()
+                },
+                onClicked = {
+                    viewModel.clearResult()
+                }
             )
         }
     }
@@ -252,6 +329,75 @@ fun ProfileScreen(
                 }
             }
         }
+    }
+
+    if (confirmChangePasswordDialog) {
+        AlertDialog(onDismissRequest = { confirmChangePasswordDialog = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.onForgetPassword()
+                        confirmChangePasswordDialog = false
+                    }
+                ) {
+                    Text(text = stringResource(R.string.yes))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { confirmChangePasswordDialog = false }
+                ) {
+                    Text(text = stringResource(R.string.no))
+                }
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = stringResource(R.string.logout)
+                )
+            },
+            title = {
+                Text(text = stringResource(R.string.change_password))
+            },
+            text = {
+                Text(text = stringResource(R.string.change_password_confirmation))
+            }
+        )
+    }
+
+    if (confirmLogoutDialog) {
+        AlertDialog(onDismissRequest = { confirmLogoutDialog = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.logout()
+                        confirmLogoutDialog = false
+                    }
+                ) {
+                    Text(text = stringResource(R.string.yes))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { confirmLogoutDialog = false }
+                ) {
+                    Text(text = stringResource(R.string.no))
+                }
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = stringResource(R.string.logout),
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
+            title = {
+                Text(text = stringResource(R.string.logout))
+            },
+            text = {
+                Text(text = stringResource(R.string.logout_confirmation))
+            }
+        )
     }
 }
 
@@ -342,28 +488,92 @@ fun NameEditTextField(viewModel: ProfileViewModel, onDone: () -> Unit) {
 
 @Composable
 fun MedicalHistoryTextField(viewModel: ProfileViewModel, onDone: () -> Unit) {
+    var searchValue by remember { mutableStateOf("") }
+    val diseaseList by remember(searchValue) {
+        derivedStateOf {
+            if (searchValue.isEmpty()) {
+                viewModel.diseaseListResult
+            } else {
+                viewModel.diseaseListResult.filter {
+                    it?.diseaseName?.contains(searchValue, ignoreCase = true) ?: false
+                }
+            }
+        }
+    }
+
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.padding(bottom = 32.dp, start = 16.dp, end = 16.dp)
     ) {
-        OutlinedTextField(
-            value = viewModel.medicalHistory,
-            onValueChange = {
-                viewModel.onMedicalHistoryChange(it)
-            },
-            minLines = 3,
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Text
-            ),
-            label = { Text(stringResource(R.string.medical_history)) },
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth()
-        )
         Text(
             text = stringResource(R.string.medical_history_input_info),
             fontSize = 14.sp,
             fontWeight = FontWeight.Light
         )
+        OutlinedTextField(
+            value = searchValue,
+            onValueChange = {
+                searchValue = it
+            },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Text
+            ),
+            trailingIcon = {
+                if (searchValue.isNotEmpty()) {
+                    IconButton(onClick = { searchValue = "" }) {
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = stringResource(R.string.clear)
+                        )
+                    }
+                }
+            },
+            label = { Text(stringResource(R.string.search_medical_history)) },
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.fillMaxWidth()
+        )
+        LazyColumn(
+            contentPadding = PaddingValues(16.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            if (viewModel.isDiseaseLoading) {
+                item {
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
+                        CircularProgressIndicator()
+                    }
+                }
+            } else if (viewModel.diseaseListErrorMessage != null) {
+                item {
+                    Text(
+                        text = viewModel.diseaseListErrorMessage ?: "",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            } else {
+                if (diseaseList.isNotEmpty()) {
+                    items(diseaseList) {
+                        val isChecked = remember(it) {
+                            derivedStateOf {
+                                viewModel.medicalListId.contains(it?.diseaseId ?: "")
+                            }
+                        }
+                        DiseaseItem(it, isChecked.value) {
+                            it?.diseaseId?.let { id -> viewModel.onMedicalHistoryChange(id) }
+                        }
+                    }
+                } else {
+                    item {
+                        Text(
+                            text = stringResource(R.string.no_data),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+        }
         Button(
             onClick = { onDone() },
             modifier = Modifier
@@ -406,6 +616,53 @@ fun AllergyTextField(viewModel: ProfileViewModel, onDone: () -> Unit) {
                 .padding(top = 16.dp)
         ) {
             Text(text = stringResource(R.string.simpan))
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun DiseaseItem(
+    data: DiseaseDataItem? = null,
+    isChecked: Boolean,
+    onItemClicked: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clickable { onItemClicked() }
+    ) {
+        Checkbox(checked = isChecked, onCheckedChange = { onItemClicked() })
+        Column {
+            Text(text = data?.diseaseName ?: "", fontWeight = FontWeight.Bold)
+            LazyRow(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                stickyHeader {
+                    Text(
+                        text = "${stringResource(R.string.avoid)}:",
+                        color = MaterialTheme.colorScheme.error,
+                        modifier = Modifier
+                            .background(
+                                MaterialTheme.colorScheme.errorContainer,
+                                RoundedCornerShape(8.dp)
+                            )
+                            .padding(horizontal = 4.dp)
+                    )
+                }
+                itemsIndexed(data?.diseaseRestrictions ?: emptyList()) { index, item ->
+                    Text(text = item?.fruit?.fruitName ?: "", fontWeight = FontWeight.Light)
+                    if (index != data?.diseaseRestrictions?.lastIndex) {
+                        Text(text = ", ", fontWeight = FontWeight.Light)
+                    }
+                }
+            }
+            Text(text = data?.description ?: "", maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
     }
 }

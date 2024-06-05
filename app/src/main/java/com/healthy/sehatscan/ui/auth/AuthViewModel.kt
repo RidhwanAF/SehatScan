@@ -9,6 +9,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.healthy.sehatscan.data.local.AuthDataStore
 import com.healthy.sehatscan.data.remote.ApiService
+import com.healthy.sehatscan.data.remote.auth.response.UserForgetPassword
 import com.healthy.sehatscan.data.remote.auth.response.UserLogin
 import com.healthy.sehatscan.data.remote.auth.response.UserRegister
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,6 +35,8 @@ class AuthViewModel @Inject constructor(
     var registerResult by mutableStateOf<UserRegister.RegisterResponse?>(null)
         private set
     var loginResult by mutableStateOf<UserLogin.LoginResponse?>(null)
+        private set
+    var forgetPasswordResult by mutableStateOf<UserForgetPassword.ForgetPasswordResponse?>(null)
         private set
 
     // User Input
@@ -145,7 +148,35 @@ class AuthViewModel @Inject constructor(
             emailError = email.isEmpty()
             return
         }
-        // TODO: Connect to API
+        viewModelScope.launch(Dispatchers.IO) {
+            val requestBody = UserForgetPassword.ForgetPasswordReqBody(email = email)
+            try {
+                isLoading = true
+                val response = apiService.forgetPassword(requestBody)
+                if (response.isSuccessful) {
+                    forgetPasswordResult = response.body()
+                    isLoading = false
+                } else {
+                    val errMsg = response.errorBody()?.string()
+                    if (errMsg != null) {
+                        try {
+                            val json = Gson().fromJson(errMsg, JsonObject::class.java)
+                            errorMessage = json.getAsJsonObject("meta").get("message").asString
+                        } catch (e: Exception) {
+                            errorMessage =
+                                "Gagal mengirimkan tautan untuk melakukan reset password, coba lagi"
+                        }
+                    } else {
+                        errorMessage =
+                            "Gagal mengirimkan tautan untuk melakukan reset password, coba lagi"
+                    }
+                    isLoading = false
+                }
+            } catch (e: Exception) {
+                isLoading = false
+                e.printStackTrace()
+            }
+        }
     }
 
     fun login() {
@@ -178,10 +209,10 @@ class AuthViewModel @Inject constructor(
                             val json = Gson().fromJson(errMsg, JsonObject::class.java)
                             errorMessage = json.getAsJsonObject("meta").get("message").asString
                         } catch (e: Exception) {
-                            errorMessage = "Gagal"
+                            errorMessage = "Gagal login, coba lagi"
                         }
                     } else {
-                        errorMessage = "Gagal"
+                        errorMessage = "Gagal login, coba lagi"
                     }
                     isLoading = false
                 }
@@ -192,7 +223,7 @@ class AuthViewModel @Inject constructor(
         }
     }
 
-    fun saveUserToken(token: String) {
+    private fun saveUserToken(token: String) {
         viewModelScope.launch(Dispatchers.IO) {
             authDataStore.setTokenPreferenceState(token)
         }
@@ -226,6 +257,7 @@ class AuthViewModel @Inject constructor(
         isLoading = false
         loginResult = null
         registerResult = null
+        forgetPasswordResult = null
         errorMessage = null
     }
 }

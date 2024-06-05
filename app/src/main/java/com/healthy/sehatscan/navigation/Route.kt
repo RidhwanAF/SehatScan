@@ -21,7 +21,8 @@ class Route {
     }
 
     enum class ScreenRoute {
-        ImageScan
+        ImageScan,
+        Drinks
     }
 
     sealed class MainScreen(

@@ -46,4 +46,15 @@
     <string name="failed">Gagal</string>
     <string name="login_success">Berhasil Login</string>
     <string name="logout">Logout</string>
+    <string name="password_reset_sent">Tautan password terkirim</string>
+    <string name="yes">Ya</string>
+    <string name="no">Tidak</string>
+    <string name="logout_confirmation">Apakah Anda yakin ingin keluar?</string>
+    <string name="change_password">Ganti kata sandi</string>
+    <string name="change_password_confirmation">Apakah Anda yakin ingin mengubah kata sandi Anda?</string>
+    <string name="clear">Bersihkan</string>
+    <string name="search_medical_history">Cari Riwayat Penyakit</string>
+    <string name="avoid">Hindari</string>
+    <string name="no_data">Tidak ada data</string>
+    <string name="nothing">Tidak ada</string>
 </resources>

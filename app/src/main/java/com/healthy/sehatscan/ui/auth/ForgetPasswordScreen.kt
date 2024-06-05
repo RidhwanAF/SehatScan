@@ -16,10 +16,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -53,9 +55,7 @@ fun ForgetPasswordScreen(
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     fun onSend() {
-        // TODO: connect to API
-//        viewModel.onForgetPassword()
-        navController.navigateUp()
+        viewModel.onForgetPassword()
     }
 
     val isButtonEnabled by remember(viewModel) {
@@ -126,15 +126,47 @@ fun ForgetPasswordScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
                 Button(
-                    onClick = { onSend() },
+                    onClick = {
+                        if (!viewModel.isLoading) onSend()
+                    },
                     shape = RoundedCornerShape(16.dp),
                     enabled = isButtonEnabled,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 16.dp)
                 ) {
-                    Text(stringResource(R.string.send).uppercase())
+                    if (viewModel.isLoading) {
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
+                    } else {
+                        Text(stringResource(R.string.send).uppercase())
+                    }
                 }
+            }
+
+            viewModel.forgetPasswordResult?.let {
+                AuthSuccessAlertDialog(
+                    message = it.meta?.message ?: stringResource(R.string.password_reset_sent),
+                    onDismiss = {
+                        navController.navigateUp()
+                        viewModel.clearResult()
+                    },
+                    onClicked = {
+                        navController.navigateUp()
+                        viewModel.clearResult()
+                    }
+                )
+            }
+
+            viewModel.errorMessage?.let {
+                AuthErrorAlertDialog(
+                    message = it,
+                    onDismiss = {
+                        viewModel.clearResult()
+                    },
+                    onClicked = {
+                        viewModel.clearResult()
+                    }
+                )
             }
         }
     }
