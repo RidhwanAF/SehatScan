@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.JsonObject
-import com.healthy.sehatscan.data.local.AuthDataStore
+import com.healthy.sehatscan.data.local.auth.AuthDataStore
 import com.healthy.sehatscan.data.remote.ApiService
 import com.healthy.sehatscan.data.remote.auth.response.UserForgetPassword
 import com.healthy.sehatscan.data.remote.auth.response.UserLogin

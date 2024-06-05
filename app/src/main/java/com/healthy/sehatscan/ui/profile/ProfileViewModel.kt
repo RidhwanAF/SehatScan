@@ -9,10 +9,12 @@ import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.healthy.sehatscan.appsetting.domain.AppSettingRepository
 import com.healthy.sehatscan.appsetting.domain.AppTheme
-import com.healthy.sehatscan.data.local.AuthDataStore
+import com.healthy.sehatscan.data.local.auth.AuthDataStore
 import com.healthy.sehatscan.data.remote.ApiService
 import com.healthy.sehatscan.data.remote.auth.response.UserForgetPassword
-import com.healthy.sehatscan.data.remote.user.response.DiseaseDataItem
+import com.healthy.sehatscan.data.remote.disease.response.DiseaseDataItem
+import com.healthy.sehatscan.data.remote.fruit.response.FruitItem
+import com.healthy.sehatscan.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,30 +24,29 @@ import javax.inject.Inject
 class ProfileViewModel @Inject constructor(
     private val apiService: ApiService,
     private val appSettingRepository: AppSettingRepository,
-    private val authDataStore: AuthDataStore
+    private val authDataStore: AuthDataStore,
+    private val userRepo: UserRepository
 ) : ViewModel() {
     // App Theme
     val appTheme = appSettingRepository.appTheme
 
-    // User Data
-    var email by mutableStateOf("")
-        private set
-
-    var userName by mutableStateOf("")
-        private set
-
-    var medicalListId by mutableStateOf<List<Int>>(emptyList())
-        private set
-
-    var allergy by mutableStateOf("")
-        private set
-
     // Api Result
+    var isUserDataLoading = userRepo.isUserDataLoading
+    var userDataResult = userRepo.userDataResult
+    var userDataErrorMessage = userRepo.userDataErrorMessage
+
     var isDiseaseLoading by mutableStateOf(false)
         private set
     var diseaseListResult by mutableStateOf<List<DiseaseDataItem?>>(emptyList())
         private set
     var diseaseListErrorMessage by mutableStateOf<String?>(null)
+        private set
+
+    var isFruitLoading by mutableStateOf(false)
+        private set
+    var fruitListResult by mutableStateOf<List<FruitItem?>>(emptyList())
+        private set
+    var fruitListErrorMessage by mutableStateOf<String?>(null)
         private set
 
     var isForgetPassLoading by mutableStateOf(false)
@@ -55,8 +56,24 @@ class ProfileViewModel @Inject constructor(
     var forgetPasswordResult by mutableStateOf<UserForgetPassword.ForgetPasswordResponse?>(null)
         private set
 
+    // User Data
+    var email by mutableStateOf("")
+        private set
+
+    var userName by mutableStateOf("")
+        private set
+
+    var medicalListId by mutableStateOf(emptyList<Int>())
+        private set
+
+    var allergies by mutableStateOf(emptyList<Int>())
+        private set
+
 
     init {
+        if (userDataResult.value == null) {
+            getUserProfileData()
+        }
         viewModelScope.launch {
             authDataStore.getNamePreferenceState().collect {
                 userName = it
@@ -92,11 +109,31 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun onAllergyChange(value: String) {
-        allergy = value
+    fun onMedicalHistoryChange(value: List<Int>) {
+        medicalListId = value
+    }
+
+    fun onAllergyChange(value: Int) {
+        allergies = if (value in allergies) {
+            allergies - value
+        } else {
+            allergies + value
+        }
+    }
+
+    fun onAllergyChange(value: List<Int>) {
+        allergies = value
     }
 
     // Api Request
+    fun getUserProfileData() {
+        viewModelScope.launch(Dispatchers.IO) {
+            authDataStore.getTokenPreferenceState().collect { token ->
+                userRepo.getUserProfileData(token)
+            }
+        }
+    }
+
     fun getDiseaseList() {
         viewModelScope.launch(Dispatchers.IO) {
             try {
@@ -126,6 +163,40 @@ class ProfileViewModel @Inject constructor(
                 }
             } catch (e: Exception) {
                 isDiseaseLoading = false
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun getFruitList() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                authDataStore.getTokenPreferenceState().collect { token ->
+                    isFruitLoading = true
+                    val response = apiService.getFruit("Bearer $token")
+                    if (response.isSuccessful) {
+                        fruitListResult = response.body()?.data ?: emptyList()
+                        isFruitLoading = false
+                    } else {
+                        val errMsg = response.errorBody()?.string()
+                        if (errMsg != null) {
+                            try {
+                                val json = Gson().fromJson(errMsg, JsonObject::class.java)
+                                fruitListErrorMessage =
+                                    json.getAsJsonObject("meta").get("message").asString
+                            } catch (e: Exception) {
+                                fruitListErrorMessage =
+                                    "Gagal mendapatkan data buah, coba lagi"
+                            }
+                        } else {
+                            fruitListErrorMessage =
+                                "Gagal mendapatkan data buah, coba lagi"
+                        }
+                        isFruitLoading = false
+                    }
+                }
+            } catch (e: Exception) {
+                isFruitLoading = false
                 e.printStackTrace()
             }
         }

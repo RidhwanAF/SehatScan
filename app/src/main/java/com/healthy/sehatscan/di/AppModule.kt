@@ -4,8 +4,9 @@ import android.content.Context
 import com.healthy.sehatscan.BuildConfig
 import com.healthy.sehatscan.appsetting.data.AppSettingDataStore
 import com.healthy.sehatscan.appsetting.domain.AppSettingRepository
-import com.healthy.sehatscan.data.local.AuthDataStore
+import com.healthy.sehatscan.data.local.auth.AuthDataStore
 import com.healthy.sehatscan.data.remote.ApiService
+import com.healthy.sehatscan.data.repository.UserRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -25,21 +26,6 @@ object AppModule {
     @Singleton
     fun provideContext(@ApplicationContext appContext: Context): Context =
         appContext
-
-    @Provides
-    @Singleton
-    fun provideAppSettingDataStore(@ApplicationContext context: Context): AppSettingDataStore =
-        AppSettingDataStore(context)
-
-    @Provides
-    @Singleton
-    fun provideAuthDataStore(@ApplicationContext context: Context): AuthDataStore =
-        AuthDataStore(context)
-
-    @Provides
-    @Singleton
-    fun provideAppSettingRepository(appSettingDataStore: AppSettingDataStore): AppSettingRepository =
-        AppSettingRepository(appSettingDataStore)
 
     @Provides
     @Singleton
@@ -66,4 +52,25 @@ object AppModule {
     @Singleton
     fun provideApiService(retrofit: Retrofit): ApiService =
         retrofit.create(ApiService::class.java)
+
+
+    @Provides
+    @Singleton
+    fun provideAppSettingDataStore(@ApplicationContext context: Context): AppSettingDataStore =
+        AppSettingDataStore(context)
+
+    @Provides
+    @Singleton
+    fun provideAuthDataStore(@ApplicationContext context: Context): AuthDataStore =
+        AuthDataStore(context)
+
+    @Provides
+    @Singleton
+    fun provideAppSettingRepository(appSettingDataStore: AppSettingDataStore): AppSettingRepository =
+        AppSettingRepository(appSettingDataStore)
+
+    @Provides
+    @Singleton
+    fun provideUserRepository(apiService: ApiService): UserRepository =
+        UserRepository(apiService)
 }

@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.healthy.sehatscan.appsetting.domain.AppSettingRepository
-import com.healthy.sehatscan.data.local.AuthDataStore
+import com.healthy.sehatscan.data.local.auth.AuthDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

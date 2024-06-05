@@ -88,8 +88,6 @@ class MainActivity : ComponentActivity() {
 
             val isLoggedIn = mainViewModel.userToken.trim().isNotEmpty()
 
-            println(mainViewModel.userToken)
-
             val appTheme by mainViewModel.appTheme
             val appThemeIcon = when (appTheme) {
                 AppTheme.LIGHT -> false

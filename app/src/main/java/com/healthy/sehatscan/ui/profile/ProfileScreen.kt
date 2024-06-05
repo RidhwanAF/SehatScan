@@ -20,7 +20,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -71,13 +73,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.healthy.sehatscan.BuildConfig
 import com.healthy.sehatscan.R
 import com.healthy.sehatscan.appsetting.domain.AppTheme
-import com.healthy.sehatscan.data.remote.user.response.DiseaseDataItem
+import com.healthy.sehatscan.data.remote.disease.response.DiseaseDataItem
+import com.healthy.sehatscan.data.remote.fruit.response.FruitItem
 import com.healthy.sehatscan.ui.auth.AuthErrorAlertDialog
 import com.healthy.sehatscan.ui.auth.AuthSuccessAlertDialog
+import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -134,10 +139,19 @@ fun ProfileScreen(
     )
 
     // Data
-    val listSelectedDisease by remember(viewModel.medicalListId) {
-        derivedStateOf {
-            viewModel.medicalListId.mapNotNull { id ->
-                viewModel.diseaseListResult.find { it?.diseaseId == id }?.diseaseName
+    val userData by viewModel.userDataResult.collectAsStateWithLifecycle()
+    val isUserDataLoading by viewModel.isUserDataLoading.collectAsStateWithLifecycle()
+    val userDataErrorMessage by viewModel.userDataErrorMessage.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit, viewModel) {
+        if (userData != null) {
+            userData.let {
+                viewModel.onUserNameChange(it?.name ?: "")
+                viewModel.onMedicalHistoryChange(it?.historyDiseases?.map { disease ->
+                    disease?.disease?.diseaseId ?: -1
+                } ?: emptyList())
+                viewModel.onAllergyChange(it?.allergies?.map { allergy -> allergy?.allergyId ?: -1 }
+                    ?: emptyList())
             }
         }
     }
@@ -223,23 +237,28 @@ fun ProfileScreen(
             ) {
                 ProfileItem(
                     title = stringResource(R.string.email),
-                    subtitle = viewModel.email, // TODO: EMAIL
+                    subtitle = viewModel.email
                 )
                 listUserData.forEachIndexed { index, title ->
                     ProfileItem(
                         title = title,
-                        subtitle = when (index) {
+                        subtitle = when (index) { // TODO : Change Data from API
                             0 -> viewModel.userName
-                            1 -> if (listSelectedDisease.isEmpty()) stringResource(R.string.nothing) else listSelectedDisease.joinToString { it }
-                            else -> viewModel.allergy
+                            1 -> {
+                                val userDisease = userData?.historyDiseases?.joinToString {
+                                    it?.disease?.diseaseName ?: ""
+                                }
+                                if (userDisease.isNullOrEmpty()) stringResource(R.string.nothing) else userDisease
+                            }
+
+                            else -> "" // TODO: Finish Allergy
                         },
+                        isLoading = isUserDataLoading,
                         onClick = {
                             when (index) {
-                                0 -> isOnEdit = 0
-                                1 -> {
-                                    viewModel.getDiseaseList() // TODO: adjust
-                                }
-                                else -> isOnEdit = 2
+                                0 -> isOnEdit = 0 // TODO
+                                1 -> viewModel.getDiseaseList()
+                                else -> viewModel.getFruitList()
                             }
                             isOnEdit = index
                         }
@@ -281,6 +300,7 @@ fun ProfileScreen(
             )
         }
 
+        // Forget Password Dialog
         viewModel.forgetPasswordResult?.let {
             AuthSuccessAlertDialog(
                 message = it.meta?.message ?: stringResource(R.string.password_reset_sent),
@@ -306,7 +326,7 @@ fun ProfileScreen(
         }
     }
 
-    isOnEdit?.let {
+    isOnEdit?.let { // TODO validation check
         ModalBottomSheet(
             onDismissRequest = {
                 isOnEdit = null // TODO : ResetData
@@ -406,6 +426,7 @@ private fun ProfileItem(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String,
+    isLoading: Boolean = false,
     onClick: (() -> Unit)? = null
 ) {
     Row(
@@ -425,7 +446,21 @@ private fun ProfileItem(
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
             )
-            Text(text = subtitle)
+            if (isLoading) {
+                Box(modifier = Modifier.shimmer()) {
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                MaterialTheme.colorScheme.onBackground,
+                                RoundedCornerShape(4.dp)
+                            )
+                            .height(16.dp)
+                            .width(64.dp)
+                    )
+                }
+            } else {
+                Text(text = subtitle)
+            }
         }
         if (onClick != null) {
             IconButton(
@@ -587,28 +622,92 @@ fun MedicalHistoryTextField(viewModel: ProfileViewModel, onDone: () -> Unit) {
 
 @Composable
 fun AllergyTextField(viewModel: ProfileViewModel, onDone: () -> Unit) {
+    var searchValue by remember { mutableStateOf("") }
+    val fruitList by remember(searchValue) {
+        derivedStateOf {
+            if (searchValue.isEmpty()) {
+                viewModel.fruitListResult
+            } else {
+                viewModel.fruitListResult.filter {
+                    it?.fruitName?.contains(searchValue, ignoreCase = true) ?: false
+                }
+            }
+        }
+    }
+
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.padding(bottom = 32.dp, start = 16.dp, end = 16.dp)
     ) {
-        OutlinedTextField(
-            value = viewModel.allergy,
-            onValueChange = {
-                viewModel.onAllergyChange(it)
-            },
-            minLines = 3,
-            keyboardOptions = KeyboardOptions.Default.copy(
-                keyboardType = KeyboardType.Text
-            ),
-            label = { Text(stringResource(R.string.allergy)) },
-            shape = RoundedCornerShape(16.dp),
-            modifier = Modifier.fillMaxWidth()
-        )
         Text(
             text = stringResource(R.string.allergy_input_info),
             fontSize = 14.sp,
             fontWeight = FontWeight.Light
         )
+        OutlinedTextField(
+            value = searchValue,
+            onValueChange = {
+                searchValue = it
+            },
+            singleLine = true,
+            keyboardOptions = KeyboardOptions.Default.copy(
+                keyboardType = KeyboardType.Text
+            ),
+            trailingIcon = {
+                if (searchValue.isNotEmpty()) {
+                    IconButton(onClick = { searchValue = "" }) {
+                        Icon(
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = stringResource(R.string.clear)
+                        )
+                    }
+                }
+            },
+            label = { Text(stringResource(R.string.search_fruit)) },
+            shape = RoundedCornerShape(16.dp),
+            modifier = Modifier.fillMaxWidth()
+        )
+        LazyColumn(
+            contentPadding = PaddingValues(16.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            if (viewModel.isFruitLoading) {
+                item {
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxWidth()) {
+                        CircularProgressIndicator()
+                    }
+                }
+            } else if (viewModel.fruitListErrorMessage != null) {
+                item {
+                    Text(
+                        text = viewModel.fruitListErrorMessage ?: "",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            } else {
+                if (fruitList.isNotEmpty()) {
+                    items(fruitList) {
+                        val isChecked = remember(it) {
+                            derivedStateOf {
+                                viewModel.allergies.contains(it?.fruitId ?: "")
+                            }
+                        }
+                        FruitItem(it, isChecked.value) {
+                            it?.fruitId?.let { id -> viewModel.onAllergyChange(id) }
+                        }
+                    }
+                } else {
+                    item {
+                        Text(
+                            text = stringResource(R.string.no_data),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            }
+        }
         Button(
             onClick = { onDone() },
             modifier = Modifier
@@ -663,6 +762,27 @@ fun DiseaseItem(
                 }
             }
             Text(text = data?.description ?: "", maxLines = 2, overflow = TextOverflow.Ellipsis)
+        }
+    }
+}
+
+@Composable
+fun FruitItem(
+    data: FruitItem? = null,
+    isChecked: Boolean,
+    onItemClicked: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .clickable { onItemClicked() }
+    ) {
+        Checkbox(checked = isChecked, onCheckedChange = { onItemClicked() })
+        Column {
+            Text(text = data?.fruitName ?: "", fontWeight = FontWeight.Bold)
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.healthy.sehatscan.data.remote.user.response
+package com.healthy.sehatscan.data.remote.disease.response
 
 import com.google.gson.annotations.SerializedName
 import com.healthy.sehatscan.data.remote.ResponseMetaData

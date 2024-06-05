@@ -1,4 +1,4 @@
-package com.healthy.sehatscan.data.local
+package com.healthy.sehatscan.data.local.auth
 
 import android.content.Context
 import androidx.datastore.core.DataStore
