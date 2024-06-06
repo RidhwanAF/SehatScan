@@ -20,7 +20,7 @@ data class Role(
 data class UserData(
 
 	@field:SerializedName("allergies")
-	val allergies: List<AllergiesItem?>? = null,
+	val allergies: List<HistoryAllergiesItem>? = null,
 
 	@field:SerializedName("createdAt")
 	val createdAt: String? = null,
@@ -35,7 +35,7 @@ data class UserData(
 	val name: String? = null,
 
 	@field:SerializedName("history_diseases")
-	val historyDiseases: List<HistoryDiseasesItem?>? = null,
+	val historyDiseases: List<HistoryDiseasesItem>? = null,
 
 	@field:SerializedName("email")
 	val email: String? = null,
@@ -44,10 +44,10 @@ data class UserData(
 	val updatedAt: String? = null
 )
 
-data class AllergiesItem(
+data class HistoryAllergiesItem(
 
-	@field:SerializedName("fruits")
-	val fruits: List<FruitsItem?>? = null,
+	@field:SerializedName("fruit")
+	val fruits: FruitsItem? = null,
 
 	@field:SerializedName("allergy_id")
 	val allergyId: Int? = null

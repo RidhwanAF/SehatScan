@@ -31,9 +31,12 @@ class ProfileViewModel @Inject constructor(
     val appTheme = appSettingRepository.appTheme
 
     // Api Result
-    var isUserDataLoading = userRepo.isUserDataLoading
-    var userDataResult = userRepo.userDataResult
-    var userDataErrorMessage = userRepo.userDataErrorMessage
+    val isUserDataLoading = userRepo.isUserDataLoading
+    val userDataResult = userRepo.userDataResult
+    val userDataErrorMessage = userRepo.userDataErrorMessage
+
+    val userAllergies = userRepo.userAllergies
+    val userMedicalHistory = userRepo.userMedicalList
 
     var isDiseaseLoading by mutableStateOf(false)
         private set
@@ -66,7 +69,7 @@ class ProfileViewModel @Inject constructor(
     var medicalListId by mutableStateOf(emptyList<Int>())
         private set
 
-    var allergies by mutableStateOf(emptyList<Int>())
+    var allergiListId by mutableStateOf(emptyList<Int>())
         private set
 
 
@@ -114,15 +117,15 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun onAllergyChange(value: Int) {
-        allergies = if (value in allergies) {
-            allergies - value
+        allergiListId = if (value in allergiListId) {
+            allergiListId - value
         } else {
-            allergies + value
+            allergiListId + value
         }
     }
 
     fun onAllergyChange(value: List<Int>) {
-        allergies = value
+        allergiListId = value
     }
 
     // Api Request

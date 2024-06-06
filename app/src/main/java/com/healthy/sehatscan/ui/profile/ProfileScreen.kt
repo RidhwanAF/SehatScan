@@ -138,28 +138,42 @@ fun ProfileScreen(
         stringResource(R.string.allergy)
     )
 
+    // Action
+    var confirmChangePasswordDialog by remember { mutableStateOf(false) }
+    var confirmLogoutDialog by remember { mutableStateOf(false) }
+    var isOnEdit by remember { mutableStateOf<Int?>(null) }
+
     // Data
     val userData by viewModel.userDataResult.collectAsStateWithLifecycle()
     val isUserDataLoading by viewModel.isUserDataLoading.collectAsStateWithLifecycle()
     val userDataErrorMessage by viewModel.userDataErrorMessage.collectAsStateWithLifecycle()
+
+    val userAllergies by viewModel.userAllergies.collectAsStateWithLifecycle()
+    val userMedicalHistory by viewModel.userMedicalHistory.collectAsStateWithLifecycle()
+
+    fun onDismiss() {
+        isOnEdit = null
+        viewModel.onAllergyChange(userAllergies.map { it.fruits?.fruitId ?: -1 })
+        viewModel.onMedicalHistoryChange(userMedicalHistory.map { it.disease?.diseaseId ?: -1 })
+    }
+
+    // Update data
+    LaunchedEffect(userAllergies, userMedicalHistory) {
+        onDismiss()
+    }
 
     LaunchedEffect(Unit, viewModel) {
         if (userData != null) {
             userData.let {
                 viewModel.onUserNameChange(it?.name ?: "")
                 viewModel.onMedicalHistoryChange(it?.historyDiseases?.map { disease ->
-                    disease?.disease?.diseaseId ?: -1
+                    disease.disease?.diseaseId ?: -1
                 } ?: emptyList())
-                viewModel.onAllergyChange(it?.allergies?.map { allergy -> allergy?.allergyId ?: -1 }
+                viewModel.onAllergyChange(it?.allergies?.map { allergy -> allergy.allergyId ?: -1 }
                     ?: emptyList())
             }
         }
     }
-
-    // Action
-    var confirmChangePasswordDialog by remember { mutableStateOf(false) }
-    var confirmLogoutDialog by remember { mutableStateOf(false) }
-    var isOnEdit by remember { mutableStateOf<Int?>(null) }
 
     Scaffold(
         topBar = {
@@ -242,16 +256,21 @@ fun ProfileScreen(
                 listUserData.forEachIndexed { index, title ->
                     ProfileItem(
                         title = title,
-                        subtitle = when (index) { // TODO : Change Data from API
+                        subtitle = when (index) {
                             0 -> viewModel.userName
                             1 -> {
-                                val userDisease = userData?.historyDiseases?.joinToString {
-                                    it?.disease?.diseaseName ?: ""
+                                val userDisease = userMedicalHistory.joinToString {
+                                    it.disease?.diseaseName ?: ""
                                 }
-                                if (userDisease.isNullOrEmpty()) stringResource(R.string.nothing) else userDisease
+                                userDisease.ifEmpty { stringResource(R.string.nothing) }
                             }
 
-                            else -> "" // TODO: Finish Allergy
+                            else -> {
+                                val allergies = userAllergies.joinToString {
+                                    it.fruits?.fruitName ?: ""
+                                }
+                                allergies.ifEmpty { stringResource(R.string.nothing) }
+                            }
                         },
                         isLoading = isUserDataLoading,
                         onClick = {
@@ -329,7 +348,7 @@ fun ProfileScreen(
     isOnEdit?.let { // TODO validation check
         ModalBottomSheet(
             onDismissRequest = {
-                isOnEdit = null // TODO : ResetData
+                onDismiss()
             }
         ) {
             when (isOnEdit) {
@@ -338,15 +357,23 @@ fun ProfileScreen(
                     // TODO : OnDone Edit
                 }
 
-                1 -> MedicalHistoryTextField(viewModel = viewModel) {
-                    isOnEdit = null
-                    // TODO : OnDone Edit
-                }
+                1 -> MedicalHistoryTextField(
+                    viewModel = viewModel,
+                    onCanceled = { onDismiss() },
+                    onDone = {
+                        println(viewModel.userMedicalHistory.value.size) // TODO
+                        isOnEdit = null
+                    }
+                )
 
-                else -> AllergyTextField(viewModel = viewModel) {
-                    isOnEdit = null
-                    // TODO : OnDone Edit
-                }
+                else -> AllergyTextField(
+                    viewModel = viewModel,
+                    onCanceled = { onDismiss() },
+                    onDone = {
+                        println(viewModel.allergiListId.size)
+                        isOnEdit = null // TODO
+                    }
+                )
             }
         }
     }
@@ -522,7 +549,11 @@ fun NameEditTextField(viewModel: ProfileViewModel, onDone: () -> Unit) {
 }
 
 @Composable
-fun MedicalHistoryTextField(viewModel: ProfileViewModel, onDone: () -> Unit) {
+fun MedicalHistoryTextField(
+    viewModel: ProfileViewModel,
+    onCanceled: () -> Unit,
+    onDone: () -> Unit
+) {
     var searchValue by remember { mutableStateOf("") }
     val diseaseList by remember(searchValue) {
         derivedStateOf {
@@ -540,6 +571,26 @@ fun MedicalHistoryTextField(viewModel: ProfileViewModel, onDone: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.padding(bottom = 32.dp, start = 16.dp, end = 16.dp)
     ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        ) {
+            TextButton(
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onBackground.copy(0.5f)
+                ),
+                onClick = { onCanceled() }
+            ) {
+                Text(text = stringResource(R.string.cancel))
+            }
+            TextButton(
+                onClick = { onDone() }
+            ) {
+                Text(text = stringResource(R.string.simpan))
+            }
+        }
         Text(
             text = stringResource(R.string.medical_history_input_info),
             fontSize = 14.sp,
@@ -621,7 +672,11 @@ fun MedicalHistoryTextField(viewModel: ProfileViewModel, onDone: () -> Unit) {
 }
 
 @Composable
-fun AllergyTextField(viewModel: ProfileViewModel, onDone: () -> Unit) {
+fun AllergyTextField(
+    viewModel: ProfileViewModel,
+    onCanceled: () -> Unit,
+    onDone: () -> Unit
+) {
     var searchValue by remember { mutableStateOf("") }
     val fruitList by remember(searchValue) {
         derivedStateOf {
@@ -639,6 +694,26 @@ fun AllergyTextField(viewModel: ProfileViewModel, onDone: () -> Unit) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.padding(bottom = 32.dp, start = 16.dp, end = 16.dp)
     ) {
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+        ) {
+            TextButton(
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onBackground.copy(0.5f)
+                ),
+                onClick = { onCanceled() }
+            ) {
+                Text(text = stringResource(R.string.cancel))
+            }
+            TextButton(
+                onClick = { onDone() }
+            ) {
+                Text(text = stringResource(R.string.simpan))
+            }
+        }
         Text(
             text = stringResource(R.string.allergy_input_info),
             fontSize = 14.sp,
@@ -688,13 +763,13 @@ fun AllergyTextField(viewModel: ProfileViewModel, onDone: () -> Unit) {
             } else {
                 if (fruitList.isNotEmpty()) {
                     items(fruitList) {
-                        val isChecked = remember(it) {
-                            derivedStateOf {
-                                viewModel.allergies.contains(it?.fruitId ?: "")
+                        FruitItem(
+                            it,
+                            it?.fruitId in viewModel.allergiListId,
+                        ) {
+                            it?.fruitId?.let { id ->
+                                viewModel.onAllergyChange(id)
                             }
-                        }
-                        FruitItem(it, isChecked.value) {
-                            it?.fruitId?.let { id -> viewModel.onAllergyChange(id) }
                         }
                     }
                 } else {
@@ -707,14 +782,6 @@ fun AllergyTextField(viewModel: ProfileViewModel, onDone: () -> Unit) {
                     }
                 }
             }
-        }
-        Button(
-            onClick = { onDone() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp)
-        ) {
-            Text(text = stringResource(R.string.simpan))
         }
     }
 }
