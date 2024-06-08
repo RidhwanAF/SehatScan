@@ -5,6 +5,8 @@ import com.healthy.sehatscan.data.remote.auth.response.UserLogin
 import com.healthy.sehatscan.data.remote.auth.response.UserRegister
 import com.healthy.sehatscan.data.remote.disease.response.GetDiseaseResponse
 import com.healthy.sehatscan.data.remote.fruit.response.FruitResponse
+import com.healthy.sehatscan.data.remote.user.response.UpdateAllergiesResponse
+import com.healthy.sehatscan.data.remote.user.response.UpdateDiseaseResponse
 import com.healthy.sehatscan.data.remote.user.response.UserResponse
 import retrofit2.Response
 import retrofit2.http.Body
@@ -44,5 +46,17 @@ interface ApiService {
     suspend fun getFruit(
         @Header("Authorization") token: String
     ): Response<FruitResponse>
+
+    @POST("api/v1/user/allergy")
+    suspend fun updateAllergies(
+        @Header("Authorization") token: String,
+        @Body requestBody: List<Int>
+    ): Response<UpdateAllergiesResponse>
+
+    @POST("api/v1/user/disease")
+    suspend fun updateDisease(
+        @Header("Authorization") token: String,
+        @Body requestBody: List<Int>
+    ): Response<UpdateDiseaseResponse>
 
 }

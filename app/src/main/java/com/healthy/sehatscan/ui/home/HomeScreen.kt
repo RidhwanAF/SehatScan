@@ -130,7 +130,12 @@ fun HomeScreen(
                             fontWeight = FontWeight.Bold,
                             fontSize = 24.sp,
                             maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier
+                                .sharedElement(
+                                    state = rememberSharedContentState(key = "menu-scan-title-fab"),
+                                    animatedVisibilityScope = animatedContentScope
+                                )
                         )
                     },
                     scrollBehavior = scrollBehavior

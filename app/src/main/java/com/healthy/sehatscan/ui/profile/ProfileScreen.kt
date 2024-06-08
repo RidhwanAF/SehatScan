@@ -1,5 +1,6 @@
 package com.healthy.sehatscan.ui.profile
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -63,6 +64,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -74,7 +76,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import com.healthy.sehatscan.BuildConfig
 import com.healthy.sehatscan.R
 import com.healthy.sehatscan.appsetting.domain.AppTheme
@@ -82,14 +83,14 @@ import com.healthy.sehatscan.data.remote.disease.response.DiseaseDataItem
 import com.healthy.sehatscan.data.remote.fruit.response.FruitItem
 import com.healthy.sehatscan.ui.auth.AuthErrorAlertDialog
 import com.healthy.sehatscan.ui.auth.AuthSuccessAlertDialog
+import com.healthy.sehatscan.utility.LoadingDialog
 import com.valentinilk.shimmer.shimmer
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ProfileScreen(
-    navController: NavHostController
-) {
+fun ProfileScreen() {
+    val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val scrollState = rememberScrollState()
 
@@ -151,15 +152,21 @@ fun ProfileScreen(
     val userAllergies by viewModel.userAllergies.collectAsStateWithLifecycle()
     val userMedicalHistory by viewModel.userMedicalHistory.collectAsStateWithLifecycle()
 
-    fun onDismiss() {
+    fun onEditDismiss() {
         isOnEdit = null
         viewModel.onAllergyChange(userAllergies.map { it.fruits?.fruitId ?: -1 })
         viewModel.onMedicalHistoryChange(userMedicalHistory.map { it.disease?.diseaseId ?: -1 })
+        viewModel.clearResult()
     }
 
     // Update data
     LaunchedEffect(userAllergies, userMedicalHistory) {
-        onDismiss()
+        onEditDismiss()
+    }
+
+    LaunchedEffect(isUserDataLoading) {
+        isOnEdit = null
+        viewModel.clearResult()
     }
 
     LaunchedEffect(Unit, viewModel) {
@@ -274,12 +281,14 @@ fun ProfileScreen(
                         },
                         isLoading = isUserDataLoading,
                         onClick = {
-                            when (index) {
-                                0 -> isOnEdit = 0 // TODO
-                                1 -> viewModel.getDiseaseList()
-                                else -> viewModel.getFruitList()
+                            if (!isUserDataLoading) {
+                                when (index) {
+                                    0 -> isOnEdit = 0 // TODO
+                                    1 -> viewModel.getDiseaseList(context)
+                                    else -> viewModel.getFruitList(context)
+                                }
+                                isOnEdit = index
                             }
-                            isOnEdit = index
                         }
                     )
                 }
@@ -345,10 +354,10 @@ fun ProfileScreen(
         }
     }
 
-    isOnEdit?.let { // TODO validation check
+    isOnEdit?.let {
         ModalBottomSheet(
             onDismissRequest = {
-                onDismiss()
+                onEditDismiss()
             }
         ) {
             when (isOnEdit) {
@@ -359,19 +368,17 @@ fun ProfileScreen(
 
                 1 -> MedicalHistoryTextField(
                     viewModel = viewModel,
-                    onCanceled = { onDismiss() },
+                    onCanceled = { onEditDismiss() },
                     onDone = {
-                        println(viewModel.userMedicalHistory.value.size) // TODO
-                        isOnEdit = null
+                        viewModel.updateDisease(context)
                     }
                 )
 
                 else -> AllergyTextField(
                     viewModel = viewModel,
-                    onCanceled = { onDismiss() },
+                    onCanceled = { onEditDismiss() },
                     onDone = {
-                        println(viewModel.allergiListId.size)
-                        isOnEdit = null // TODO
+                        viewModel.updateAllergies(context)
                     }
                 )
             }
@@ -383,7 +390,7 @@ fun ProfileScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        viewModel.onForgetPassword()
+                        viewModel.onForgetPassword(context)
                         confirmChangePasswordDialog = false
                     }
                 ) {
@@ -446,6 +453,23 @@ fun ProfileScreen(
             }
         )
     }
+
+    // Dialog Screen State
+    if (viewModel.isUpdateAllergiesLoading || viewModel.isUpdateDiseaseLoading) {
+        LoadingDialog(stringResource(R.string.updating))
+    }
+
+    userDataErrorMessage?.let {
+        Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+    }
+
+    viewModel.updateDiseaseErrorMessage?.let {
+        Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+    }
+
+    viewModel.updateAllergiesErrorMessage?.let {
+        Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+    }
 }
 
 @Composable
@@ -497,6 +521,7 @@ private fun ProfileItem(
                 colors = IconButtonDefaults.iconButtonColors(
                     contentColor = MaterialTheme.colorScheme.secondary
                 ),
+                enabled = !isLoading,
                 modifier = modifier
             ) {
                 Icon(
@@ -640,12 +665,7 @@ fun MedicalHistoryTextField(
             } else {
                 if (diseaseList.isNotEmpty()) {
                     items(diseaseList) {
-                        val isChecked = remember(it) {
-                            derivedStateOf {
-                                viewModel.medicalListId.contains(it?.diseaseId ?: "")
-                            }
-                        }
-                        DiseaseItem(it, isChecked.value) {
+                        DiseaseItem(it, it?.diseaseId in viewModel.medicalListId) {
                             it?.diseaseId?.let { id -> viewModel.onMedicalHistoryChange(id) }
                         }
                     }
@@ -659,14 +679,6 @@ fun MedicalHistoryTextField(
                     }
                 }
             }
-        }
-        Button(
-            onClick = { onDone() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp)
-        ) {
-            Text(text = stringResource(R.string.simpan))
         }
     }
 }
@@ -765,7 +777,7 @@ fun AllergyTextField(
                     items(fruitList) {
                         FruitItem(
                             it,
-                            it?.fruitId in viewModel.allergiListId,
+                            it?.fruitId in viewModel.allergyListId,
                         ) {
                             it?.fruitId?.let { id ->
                                 viewModel.onAllergyChange(id)

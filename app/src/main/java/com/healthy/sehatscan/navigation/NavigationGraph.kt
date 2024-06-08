@@ -119,7 +119,7 @@ fun NavigationGraph(
                 FavoriteScreen(navController = navController)
             }
             composable(route = Route.MainScreen.Profile.route) {
-                ProfileScreen(navController = navController)
+                ProfileScreen()
             }
 
             // Other

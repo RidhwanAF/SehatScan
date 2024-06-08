@@ -151,7 +151,14 @@ fun ScanScreen(
                                         animatedVisibilityScope = animatedContentScope
                                     )
                             )
-                            Text(text = stringResource(R.string.app_name))
+                            Text(
+                                text = stringResource(R.string.app_name),
+                                modifier = Modifier
+                                    .sharedElement(
+                                        state = rememberSharedContentState(key = "menu-scan-title-fab"),
+                                        animatedVisibilityScope = animatedContentScope
+                                    )
+                            )
                         }
                     },
                     navigationIcon = {

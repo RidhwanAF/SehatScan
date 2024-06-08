@@ -1,5 +1,6 @@
 package com.healthy.sehatscan.ui.profile
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -7,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.JsonObject
+import com.healthy.sehatscan.R
 import com.healthy.sehatscan.appsetting.domain.AppSettingRepository
 import com.healthy.sehatscan.appsetting.domain.AppTheme
 import com.healthy.sehatscan.data.local.auth.AuthDataStore
@@ -38,6 +40,7 @@ class ProfileViewModel @Inject constructor(
     val userAllergies = userRepo.userAllergies
     val userMedicalHistory = userRepo.userMedicalList
 
+    // User Data Holder
     var isDiseaseLoading by mutableStateOf(false)
         private set
     var diseaseListResult by mutableStateOf<List<DiseaseDataItem?>>(emptyList())
@@ -69,7 +72,7 @@ class ProfileViewModel @Inject constructor(
     var medicalListId by mutableStateOf(emptyList<Int>())
         private set
 
-    var allergiListId by mutableStateOf(emptyList<Int>())
+    var allergyListId by mutableStateOf(emptyList<Int>())
         private set
 
 
@@ -117,19 +120,19 @@ class ProfileViewModel @Inject constructor(
     }
 
     fun onAllergyChange(value: Int) {
-        allergiListId = if (value in allergiListId) {
-            allergiListId - value
+        allergyListId = if (value in allergyListId) {
+            allergyListId - value
         } else {
-            allergiListId + value
+            allergyListId + value
         }
     }
 
     fun onAllergyChange(value: List<Int>) {
-        allergiListId = value
+        allergyListId = value
     }
 
     // Api Request
-    fun getUserProfileData() {
+    private fun getUserProfileData() {
         viewModelScope.launch(Dispatchers.IO) {
             authDataStore.getTokenPreferenceState().collect { token ->
                 userRepo.getUserProfileData(token)
@@ -137,7 +140,9 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun getDiseaseList() {
+    fun getDiseaseList(
+        context: Context
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 authDataStore.getTokenPreferenceState().collect { token ->
@@ -155,11 +160,11 @@ class ProfileViewModel @Inject constructor(
                                     json.getAsJsonObject("meta").get("message").asString
                             } catch (e: Exception) {
                                 diseaseListErrorMessage =
-                                    "Gagal mendapatkan data penyakit, coba lagi"
+                                    context.getString(R.string.failed_to_get_disease_data)
                             }
                         } else {
                             diseaseListErrorMessage =
-                                "Gagal mendapatkan data penyakit, coba lagi"
+                                context.getString(R.string.failed_to_get_disease_data)
                         }
                         isDiseaseLoading = false
                     }
@@ -171,7 +176,9 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun getFruitList() {
+    fun getFruitList(
+        context: Context
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 authDataStore.getTokenPreferenceState().collect { token ->
@@ -189,11 +196,11 @@ class ProfileViewModel @Inject constructor(
                                     json.getAsJsonObject("meta").get("message").asString
                             } catch (e: Exception) {
                                 fruitListErrorMessage =
-                                    "Gagal mendapatkan data buah, coba lagi"
+                                    context.getString(R.string.failed_to_get_fruit_data)
                             }
                         } else {
                             fruitListErrorMessage =
-                                "Gagal mendapatkan data buah, coba lagi"
+                                context.getString(R.string.failed_to_get_fruit_data)
                         }
                         isFruitLoading = false
                     }
@@ -205,7 +212,9 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    fun onForgetPassword() {
+    fun onForgetPassword(
+        context: Context
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
             val requestBody = UserForgetPassword.ForgetPasswordReqBody(email = email)
             try {
@@ -223,17 +232,111 @@ class ProfileViewModel @Inject constructor(
                                 json.getAsJsonObject("meta").get("message").asString
                         } catch (e: Exception) {
                             forgetPassErrorMessage =
-                                "Gagal mengirimkan tautan untuk mengganti password, coba lagi"
+                                context.getString(R.string.failed_to_send_reset_password_link)
                         }
                     } else {
                         forgetPassErrorMessage =
-                            "Gagal mengirimkan tautan untuk mengganti password, coba lagi"
+                            context.getString(R.string.failed_to_send_reset_password_link)
                     }
                     isForgetPassLoading = false
                 }
             } catch (e: Exception) {
                 isForgetPassLoading = false
                 e.printStackTrace()
+            }
+        }
+    }
+
+    // Update Allergies
+    var isUpdateAllergiesLoading by mutableStateOf(false)
+        private set
+    var updateAllergiesErrorMessage by mutableStateOf<String?>(null)
+        private set
+
+    fun updateAllergies(
+        context: Context
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                isUpdateAllergiesLoading = true
+                authDataStore.getTokenPreferenceState().collect { token ->
+                    val response = apiService.updateAllergies(
+                        "Bearer $token",
+                        allergyListId
+                    )
+                    if (response.isSuccessful) {
+                        getUserProfileData()
+                        isUpdateAllergiesLoading = false
+                    } else {
+                        val errMsg = response.errorBody()?.string()
+                        if (errMsg != null) {
+                            try {
+                                val json = Gson().fromJson(errMsg, JsonObject::class.java)
+                                updateAllergiesErrorMessage =
+                                    json.getAsJsonObject("meta").get("message").asString
+                            } catch (e: Exception) {
+                                updateAllergiesErrorMessage =
+                                    context.getString(R.string.failed_to_update_allergies)
+                            }
+                        } else {
+                            updateAllergiesErrorMessage =
+                                context.getString(R.string.failed_to_update_allergies)
+                        }
+                        isUpdateAllergiesLoading = false
+                    }
+                }
+            } catch (e: Exception) {
+                isUpdateAllergiesLoading = false
+                e.printStackTrace()
+            } finally {
+                updateAllergiesErrorMessage = null
+            }
+        }
+    }
+
+    // Update Disease
+    var isUpdateDiseaseLoading by mutableStateOf(false)
+        private set
+    var updateDiseaseErrorMessage by mutableStateOf<String?>(null)
+        private set
+
+    fun updateDisease(
+        context: Context
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                isUpdateDiseaseLoading = true
+                authDataStore.getTokenPreferenceState().collect { token ->
+                    val response = apiService.updateDisease(
+                        "Bearer $token",
+                        medicalListId
+                    )
+                    if (response.isSuccessful) {
+                        getUserProfileData()
+                        isUpdateDiseaseLoading = false
+                    } else {
+                        val errMsg = response.errorBody()?.string()
+                        if (errMsg != null) {
+                            try {
+                                val json = Gson().fromJson(errMsg, JsonObject::class.java)
+                                updateDiseaseErrorMessage =
+                                    json.getAsJsonObject("meta").get("message").asString
+                            } catch (e: Exception) {
+                                updateDiseaseErrorMessage =
+                                    context.getString(R.string.failed_to_update_medical_history)
+                            }
+                        } else {
+                            updateDiseaseErrorMessage =
+                                context.getString(R.string.failed_to_update_medical_history)
+                        }
+                        isUpdateDiseaseLoading = false
+                    }
+                }
+            } catch (e: Exception) {
+                isUpdateDiseaseLoading = false
+                e.printStackTrace()
+            } finally {
+                updateDiseaseErrorMessage = null
             }
         }
     }
@@ -250,5 +353,10 @@ class ProfileViewModel @Inject constructor(
         isForgetPassLoading = false
         forgetPassErrorMessage = null
         forgetPasswordResult = null
+        isDiseaseLoading = false
+        diseaseListErrorMessage = null
+        updateDiseaseErrorMessage = null
+        updateAllergiesErrorMessage = null
+        isFruitLoading = false
     }
 }

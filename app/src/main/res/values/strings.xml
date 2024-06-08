@@ -59,4 +59,11 @@
     <string name="nothing">Tidak ada</string>
     <string name="search_fruit">Cari Buah</string>
     <string name="cancel">Batalkan</string>
+    <string name="loading">Memuat</string>
+    <string name="updating">Mengubah…</string>
+    <string name="failed_to_update_medical_history">Gagal mengubah data riwayat penyakit, coba lagi</string>
+    <string name="failed_to_update_allergies">Gagal mengubah data alergi, coba lagi</string>
+    <string name="failed_to_send_reset_password_link">Gagal mengirimkan tautan untuk mengganti password, coba lagi</string>
+    <string name="failed_to_get_fruit_data">Gagal mendapatkan data buah, coba lagi</string>
+    <string name="failed_to_get_disease_data">Gagal mendapatkan data penyakit, coba lagi</string>
 </resources>
