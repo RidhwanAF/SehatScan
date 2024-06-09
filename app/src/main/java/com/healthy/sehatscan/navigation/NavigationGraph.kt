@@ -116,7 +116,7 @@ fun NavigationGraph(
                 HistoryScreen(navController = navController)
             }
             composable(route = Route.MainScreen.Favorite.route) {
-                FavoriteScreen(navController = navController)
+                FavoriteScreen()
             }
             composable(route = Route.MainScreen.Profile.route) {
                 ProfileScreen()

@@ -66,4 +66,5 @@
     <string name="failed_to_send_reset_password_link">Gagal mengirimkan tautan untuk mengganti password, coba lagi</string>
     <string name="failed_to_get_fruit_data">Gagal mendapatkan data buah, coba lagi</string>
     <string name="failed_to_get_disease_data">Gagal mendapatkan data penyakit, coba lagi</string>
+    <string name="failed_to_load_image">Failed to load image</string>
 </resources>
