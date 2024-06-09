@@ -1,57 +1,32 @@
 package com.healthy.sehatscan.ui.history
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.activity.compose.BackHandler
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
+import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
+import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-import com.healthy.sehatscan.R
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
-fun HistoryScreen(
-    navController: NavHostController,
-) {
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val scrollState = rememberScrollState()
+fun HistoryScreen() {
+    val navigator = rememberListDetailPaneScaffoldNavigator<Any>()
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = stringResource(R.string.scan_history).uppercase(),
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                },
-                scrollBehavior = scrollBehavior
-            )
-        },
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .verticalScroll(scrollState)
-        ) {
-
-        }
+    BackHandler(navigator.canNavigateBack()) {
+        navigator.navigateBack()
     }
+
+    ListDetailPaneScaffold(
+        directive = navigator.scaffoldDirective,
+        value = navigator.scaffoldValue,
+        listPane = {
+            HistoryListScreen {
+                navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it)
+            }
+        },
+        detailPane = {
+            val content = navigator.currentDestination?.content?.toString() ?: "Select an item"
+            HistoryDetailScreen(content)
+        }
+    )
 }

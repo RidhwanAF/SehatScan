@@ -195,6 +195,7 @@ fun HomeScreen(
             modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
         ) { innerPadding ->
             Column(
+                verticalArrangement = Arrangement.Center,
                 modifier = Modifier
                     .padding(innerPadding)
                     .fillMaxSize()

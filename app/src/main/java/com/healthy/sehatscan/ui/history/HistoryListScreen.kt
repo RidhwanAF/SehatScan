@@ -1,4 +1,4 @@
-package com.healthy.sehatscan.ui.favorite
+package com.healthy.sehatscan.ui.history
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,7 +38,7 @@ import com.valentinilk.shimmer.shimmer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoriteListScreen(
+fun HistoryListScreen(
     onItemClicked: (String) -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -49,7 +48,7 @@ fun FavoriteListScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = stringResource(R.string.favorite).uppercase(),
+                        text = stringResource(R.string.scan_history).uppercase(),
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp,
                         maxLines = 1,
@@ -72,7 +71,7 @@ fun FavoriteListScreen(
                 .fillMaxSize()
         ) {
             items(100) {
-                FavoriteListItem(
+                HistoryListItem(
                     item = "$it"
                 ) {
                     onItemClicked(it)
@@ -83,7 +82,11 @@ fun FavoriteListScreen(
 }
 
 @Composable
-fun FavoriteListItem(modifier: Modifier = Modifier, item: String, onItemClicked: (String) -> Unit) {
+fun HistoryListItem(
+    modifier: Modifier = Modifier,
+    item: String,
+    onItemClicked: (String) -> Unit
+) {
     Card(
         onClick = { onItemClicked(item) },
         modifier = Modifier.padding(vertical = 8.dp)
@@ -123,37 +126,29 @@ fun FavoriteListItem(modifier: Modifier = Modifier, item: String, onItemClicked:
                     .fillMaxHeight()
                     .aspectRatio(1f)
             )
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
                     .weight(1f)
-                    .padding(top = 16.dp, bottom = 16.dp, end = 16.dp)
+                    .padding(end = 16.dp)
             ) {
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = "Juice $item",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Text(text = "Apel, Jeruk", maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(
-                        text = "Jus untuk memenuhi asupan vitamin harianmu",
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                }
-                IconButton(onClick = { /*TODO*/ }) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_favorite),
-                        contentDescription = stringResource(R.string.favorite)
-                    )
-                }
+                Text(
+                    text = "Juice $item",
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(text = "Apel, Jeruk", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Text(
+                    text = "Jus untuk memenuhi asupan vitamin harianmu",
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = "23 Feb 2024 12:00",
+                    fontWeight = FontWeight.Light
+                )
             }
         }
     }

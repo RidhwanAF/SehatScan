@@ -1,4 +1,4 @@
-package com.healthy.sehatscan.ui.favorite
+package com.healthy.sehatscan.ui.history
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,7 +19,9 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FavoriteDetailScreen(id: String) {
+fun HistoryDetailScreen(
+    id: String
+) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val scrollState = rememberScrollState()
 
@@ -38,7 +40,9 @@ fun FavoriteDetailScreen(id: String) {
                 scrollBehavior = scrollBehavior
             )
         },
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+        modifier = Modifier
+            .fillMaxSize()
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         Column(
             modifier = Modifier
