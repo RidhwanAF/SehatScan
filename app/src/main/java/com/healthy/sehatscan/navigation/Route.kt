@@ -3,6 +3,7 @@ package com.healthy.sehatscan.navigation
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.healthy.sehatscan.R
+import kotlinx.serialization.Serializable
 
 class Route {
 
@@ -22,8 +23,12 @@ class Route {
 
     enum class ScreenRoute {
         ImageScan,
-        Drinks
     }
+
+    @Serializable
+    data class Drink(
+        val fruit: String
+    )
 
     sealed class MainScreen(
         val route: String,

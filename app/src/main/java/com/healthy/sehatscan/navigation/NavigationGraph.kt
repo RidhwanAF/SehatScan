@@ -19,13 +19,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import androidx.navigation.toRoute
 import com.healthy.sehatscan.ui.auth.AuthViewModel
 import com.healthy.sehatscan.ui.auth.ForgetPasswordScreen
 import com.healthy.sehatscan.ui.auth.LoginScreen
 import com.healthy.sehatscan.ui.auth.RegisterScreen
 import com.healthy.sehatscan.ui.favorite.FavoriteScreen
 import com.healthy.sehatscan.ui.history.HistoryScreen
-import com.healthy.sehatscan.ui.home.DrinksScreen
+import com.healthy.sehatscan.ui.home.drink.DrinksScreen
 import com.healthy.sehatscan.ui.home.HomeScreen
 import com.healthy.sehatscan.ui.home.ScanScreen
 import com.healthy.sehatscan.ui.profile.ProfileScreen
@@ -130,14 +131,14 @@ fun NavigationGraph(
                     this@composable
                 )
             }
-            composable(
-                route = Route.ScreenRoute.Drinks.name,
+            composable<Route.Drink>(
                 enterTransition = { slideInVertically { it } },
                 exitTransition = { slideOutVertically { it } },
                 popEnterTransition = { slideInVertically { it } },
                 popExitTransition = { slideOutVertically { it } }
             ) {
-                DrinksScreen(navController = navController)
+                val args = it.toRoute<Route.Drink>()
+                DrinksScreen(navController = navController, args.fruit)
             }
         }
     }

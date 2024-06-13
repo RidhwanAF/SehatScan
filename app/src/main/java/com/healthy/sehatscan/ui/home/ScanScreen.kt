@@ -67,6 +67,7 @@ import com.healthy.sehatscan.classification.data.TfLiteFruitClassifier
 import com.healthy.sehatscan.classification.domain.Classification
 import com.healthy.sehatscan.classification.presentation.CameraPreview
 import com.healthy.sehatscan.classification.presentation.FruitImageAnalyzer
+import com.healthy.sehatscan.navigation.Route
 import com.healthy.sehatscan.utility.dashedBorder
 
 @SuppressLint("SourceLockedOrientationActivity")
@@ -245,7 +246,11 @@ fun ScanScreen(
                     }
                     items(classifications) { item ->
                         ElevatedSuggestionChip(
-                            onClick = { /*TODO*/ },
+                            onClick = {
+                                navController.navigate(Route.Drink(item.name)) {
+                                    launchSingleTop = true
+                                }
+                            },
                             shape = CircleShape,
                             label = {
                                 Text(

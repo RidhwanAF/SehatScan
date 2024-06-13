@@ -4,6 +4,8 @@ import com.healthy.sehatscan.data.remote.auth.response.UserForgetPassword
 import com.healthy.sehatscan.data.remote.auth.response.UserLogin
 import com.healthy.sehatscan.data.remote.auth.response.UserRegister
 import com.healthy.sehatscan.data.remote.disease.response.GetDiseaseResponse
+import com.healthy.sehatscan.data.remote.drink.response.DrinkRecommendReqBody
+import com.healthy.sehatscan.data.remote.drink.response.DrinkResponse
 import com.healthy.sehatscan.data.remote.fruit.response.FruitResponse
 import com.healthy.sehatscan.data.remote.user.response.UpdateAllergiesResponse
 import com.healthy.sehatscan.data.remote.user.response.UpdateDiseaseResponse
@@ -13,6 +15,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface ApiService {
     // AUTH
@@ -59,4 +62,10 @@ interface ApiService {
         @Body requestBody: List<Int>
     ): Response<UpdateDiseaseResponse>
 
+    // Drink
+    @POST("api/v1/predict")
+    suspend fun getDrinkRecommendation(
+        @Header("Authorization") token: String,
+        @Body data: DrinkRecommendReqBody
+    ): Response<DrinkResponse>
 }

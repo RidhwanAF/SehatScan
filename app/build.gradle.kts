@@ -3,6 +3,8 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.googleDevtoolsKsp)
     alias(libs.plugins.googleDaggerHiltAndroid)
+    alias(libs.plugins.kotlin.serialization)
+    id("kotlin-parcelize")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
@@ -98,4 +100,5 @@ dependencies {
     implementation(libs.androidx.adaptive)
     implementation(libs.androidx.adaptive.layout)
     implementation(libs.androidx.adaptive.navigation)
+    implementation(libs.kotlinx.serialization.json)
 }
