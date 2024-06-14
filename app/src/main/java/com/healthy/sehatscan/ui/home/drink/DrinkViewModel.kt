@@ -39,7 +39,7 @@ class DrinkViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 authDataStore.getTokenPreferenceState().collect { token ->
-                    val response = apiService.getDrinkRecommendation(token, data)
+                    val response = apiService.getDrinkRecommendation("Bearer $token", data)
                     if (response.isSuccessful) {
                         drinkListResult = response.body()?.data ?: emptyList()
                         isDrinkLoading = false
