@@ -262,7 +262,7 @@ fun HomeScreen(
                     ) { append(stringResource(R.string.greeting_message)) }
                 },
                 lineHeight = 28.sp,
-                modifier = Modifier.padding(horizontal = 16.dp)
+                modifier = Modifier.padding(16.dp)
             )
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
