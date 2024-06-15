@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -78,12 +77,7 @@ fun DrinkListScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         LazyColumn(
-            contentPadding = PaddingValues(
-                top = innerPadding.calculateTopPadding(),
-                bottom = innerPadding.calculateBottomPadding(),
-                start = 16.dp,
-                end = 16.dp
-            )
+            contentPadding = innerPadding
         ) {
             if (viewModel.isDrinkLoading) {
                 items(3) {
@@ -133,26 +127,26 @@ fun DrinkListScreen(
 @Composable
 fun DrinkRecommendItem(data: DrinkItem, onItemClicked: () -> Unit) {
     val painter =
-        rememberAsyncImagePainter(model = "https://picsum.photos/200/300") // TODO: Change Image Drink
+        rememberAsyncImagePainter(model = "https://assets.clevelandclinic.org/transform/47cdb246-3c9d-4efb-8b3b-1e6b85567a16/Fruit-Juice-155376375-770x533-1_jpg") // TODO: Change Image Drink
 
     Row(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onItemClicked() }
-            .padding(vertical = 8.dp, horizontal = 16.dp)
     ) {
         Image(
             painter = painter,
             contentDescription = data.drinkName,
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .size(64.dp)
+                .size(100.dp)
         )
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
                 .weight(1f)
+                .padding(16.dp)
         ) {
             Text(
                 text = data.drinkName ?: "",

@@ -52,7 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -114,9 +114,12 @@ fun ScanScreen(
     var classifications by remember {
         mutableStateOf(emptyList<Classification>())
     }
+
+    val classifier = remember { TfLiteFruitClassifier(context.applicationContext) }
+
     val analyzer = remember {
         FruitImageAnalyzer(
-            classifier = TfLiteFruitClassifier(context.applicationContext),
+            classifier = classifier,
             onResults = { results ->
                 println(results)
                 classifications = results.sortedByDescending { it.score }
@@ -134,139 +137,139 @@ fun ScanScreen(
         }
     }
 
-    with(sharedTransitionScope) {
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp)
-                        ) {
-                            Icon(
-                                painter = painterResource(R.drawable.ic_camera_enhance),
-                                contentDescription = stringResource(R.string.app_name),
-                                modifier = Modifier
-                                    .sharedElement(
-                                        state = rememberSharedContentState(key = "menu-scan-icon-fab"),
-                                        animatedVisibilityScope = animatedContentScope
-                                    )
-                            )
-                            Text(
-                                text = stringResource(R.string.app_name),
-                                modifier = Modifier
-                                    .sharedElement(
-                                        state = rememberSharedContentState(key = "menu-scan-title-fab"),
-                                        animatedVisibilityScope = animatedContentScope
-                                    )
-                            )
-                        }
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = { navController.navigateUp() }) {
-                            Icon(
-                                imageVector = Icons.Default.KeyboardArrowDown,
-                                contentDescription = stringResource(R.string.back)
-                            )
-                        }
-                    },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        containerColor = MaterialTheme.colorScheme.primaryContainer,
-                        titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                    )
-                )
-            },
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            modifier = Modifier
-                .sharedBounds(
-                    sharedContentState = rememberSharedContentState(key = "menu-scan-fab"),
-                    animatedVisibilityScope = animatedContentScope,
-                    resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds(ContentScale.Crop),
-                    placeHolderSize = SharedTransitionScope.PlaceHolderSize.animatedSize
-                )
-                .fillMaxSize()
-        ) { innerPadding ->
-            Box {
-                CameraPreview(
-                    modifier = Modifier.fillMaxSize(),
-                    controller = controller
-                )
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .offset(y = (-32).dp)
-                        .align(Alignment.Center)
-                ) {
-                    Text(
-                        text = stringResource(R.string.detecting),
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                            .background(
-                                MaterialTheme.colorScheme.primaryContainer,
-                                CircleShape
-                            )
-                            .padding(16.dp)
-                    )
-                    Box(
-                        modifier = Modifier
-                            .padding(16.dp)
-                            .scale(scaleDashAnimation)
-                            .dashedBorder(4.dp, MaterialTheme.colorScheme.primaryContainer, 16.dp)
-                            .fillMaxWidth()
-                            .aspectRatio(1f)
-                    )
-                }
-                LazyRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(innerPadding)
-                        .align(Alignment.BottomCenter),
-                    contentPadding = PaddingValues(end = 16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    stickyHeader {
-                        if (classifications.isNotEmpty()) {
-                            Text(
-                                text = stringResource(R.string.result),
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                                    .shadow(
-                                        2.dp,
-                                        RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp),
-                                        clip = true
-                                    )
-                                    .background(
-                                        MaterialTheme.colorScheme.surface,
-                                        RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
-                                    )
-                                    .padding(16.dp)
-                            )
-                        }
-                    }
-                    items(classifications) { item ->
-                        ElevatedSuggestionChip(
-                            onClick = {
-                                navController.navigate(Route.Drink(item.name)) {
-                                    launchSingleTop = true
-                                }
-                            },
-                            shape = CircleShape,
-                            label = {
-                                Text(
-                                    text = item.name,
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.padding(vertical = 16.dp)
-                                )
-                            },
-                            colors = SuggestionChipDefaults.suggestionChipColors(
-                                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                                labelColor = MaterialTheme.colorScheme.onPrimaryContainer
-                            )
+//    with(sharedTransitionScope) {
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_camera_enhance),
+                            contentDescription = stringResource(R.string.app_name),
+                            modifier = Modifier
+//                                    .sharedElement(
+//                                        state = rememberSharedContentState(key = "menu-scan-icon-fab"),
+//                                        animatedVisibilityScope = animatedContentScope
+//                                    )
+                        )
+                        Text(
+                            text = stringResource(R.string.app_name),
+                            modifier = Modifier
+//                                    .sharedElement(
+//                                        state = rememberSharedContentState(key = "menu-scan-title-fab"),
+//                                        animatedVisibilityScope = animatedContentScope
+//                                    )
                         )
                     }
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.navigateUp() }) {
+                        Icon(
+                            imageVector = Icons.Default.KeyboardArrowDown,
+                            contentDescription = stringResource(R.string.back)
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.primaryContainer,
+        modifier = Modifier
+//                .sharedBounds(
+//                    sharedContentState = rememberSharedContentState(key = "menu-scan-fab"),
+//                    animatedVisibilityScope = animatedContentScope,
+//                    resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds(ContentScale.Crop),
+//                    placeHolderSize = SharedTransitionScope.PlaceHolderSize.animatedSize
+//                )
+            .fillMaxSize()
+    ) { innerPadding ->
+        Box(modifier = Modifier.background(Color.Black)) {
+            CameraPreview(
+                modifier = Modifier.fillMaxSize(),
+                controller = controller
+            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .offset(y = (-32).dp)
+                    .align(Alignment.Center)
+            ) {
+                Text(
+                    text = stringResource(R.string.point_to_center),
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .background(
+                            MaterialTheme.colorScheme.primaryContainer,
+                            CircleShape
+                        )
+                        .padding(16.dp)
+                )
+                Box(
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .scale(scaleDashAnimation)
+                        .dashedBorder(4.dp, MaterialTheme.colorScheme.primaryContainer, 16.dp)
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
+                )
+            }
+            LazyRow(
+                modifier = Modifier
+                    .padding(bottom = innerPadding.calculateBottomPadding())
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter),
+                contentPadding = PaddingValues(end = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                stickyHeader {
+                    if (classifications.isNotEmpty()) {
+                        Text(
+                            text = stringResource(R.string.result),
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                                .shadow(
+                                    2.dp,
+                                    RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp),
+                                    clip = true
+                                )
+                                .background(
+                                    MaterialTheme.colorScheme.surface,
+                                    RoundedCornerShape(topEnd = 16.dp, bottomEnd = 16.dp)
+                                )
+                                .padding(16.dp)
+                        )
+                    }
+                }
+                items(classifications) { item ->
+                    ElevatedSuggestionChip(
+                        onClick = {
+                            navController.navigate(Route.Drink(item.name)) {
+                                launchSingleTop = true
+                            }
+                        },
+                        shape = CircleShape,
+                        label = {
+                            Text(
+                                text = item.name,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(vertical = 16.dp)
+                            )
+                        },
+                        colors = SuggestionChipDefaults.suggestionChipColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            labelColor = MaterialTheme.colorScheme.onPrimary
+                        )
+                    )
                 }
             }
         }
     }
+//    }
 }

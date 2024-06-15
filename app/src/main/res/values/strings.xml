@@ -24,7 +24,7 @@
     <string name="scan_history">Riwayat Scan</string>
     <string name="camera_permission_request_message">Izin kamera dibutuhkan untuk mendeteksi pada aplikasi ini</string>
     <string name="welcome_with_args">Selamat Datang, %1$s!\n</string>
-    <string name="greeting_message">Sudah menentukan minuman sehat untuk hari ini?</string>
+    <string name="greeting_message">Apa minuman sehat pilihanmu hari ini?</string>
     <string name="edit">Edit</string>
     <string name="name">Nama</string>
     <string name="allergy">Alergi</string>
@@ -37,7 +37,7 @@
     <string name="light">Terang</string>
     <string name="dark">Gelap</string>
     <string name="system_theme">Tema Sistem</string>
-    <string name="detecting">Mendeteksi…</string>
+    <string name="point_to_center">Arahkan objek ke tengah</string>
     <string name="result">Hasil</string>
     <string name="ok">Ok</string>
     <string name="success">Berhasil</string>
@@ -70,4 +70,8 @@
     <string name="recommendation_drink">Rekomendasi Minuman</string>
     <string name="select_item">Pilih Item</string>
     <string name="refresh">Refresh</string>
+    <string name="healthy_tips">Tips Kesehatan</string>
+    <string name="start_scan_to_get_drink_recommendation">Mulai scan dan dapatkan rekomendasi minuman!</string>
+    <string name="choose_picture_from_gallery">Ambil gambar dari galeri</string>
+    <string name="gallery">Galeri</string>
 </resources>

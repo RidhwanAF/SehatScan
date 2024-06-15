@@ -8,6 +8,10 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -25,12 +29,19 @@ fun DrinksScreen(
     val navigator = rememberListDetailPaneScaffoldNavigator<DrinkItem>()
 
     // Get Data
-    LaunchedEffect(Unit, fruit) {
+    var isDataLoaded by rememberSaveable {
+        mutableStateOf(false)
+    }
+
+    LaunchedEffect(Unit, fruit, isDataLoaded) {
         val reqBody = DrinkRecommendReqBody(fruit ?: "")
-        viewModel.getDrinkRecommendation(
-            context,
-            reqBody
-        )
+        if (!isDataLoaded) {
+            viewModel.getDrinkRecommendation(
+                context,
+                reqBody
+            )
+            isDataLoaded = true
+        }
     }
 
     BackHandler(navigator.canNavigateBack()) {

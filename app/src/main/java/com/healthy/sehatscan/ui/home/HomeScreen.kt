@@ -1,6 +1,7 @@
 package com.healthy.sehatscan.ui.home
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -23,12 +24,19 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FabPosition
@@ -38,9 +46,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -49,13 +59,13 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
@@ -66,7 +76,11 @@ import androidx.navigation.NavHostController
 import com.healthy.sehatscan.MainViewModel
 import com.healthy.sehatscan.R
 import com.healthy.sehatscan.navigation.Route
+import com.healthy.sehatscan.utility.healthyFruitTips
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
+@SuppressLint("SourceLockedOrientationActivity")
 @OptIn(ExperimentalSharedTransitionApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -75,10 +89,27 @@ fun HomeScreen(
     animatedContentScope: AnimatedContentScope
 ) {
     val context = LocalContext.current
-    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val scrollState = rememberScrollState()
     val mutableInteractionSource = remember {
         mutableStateOf(MutableInteractionSource())
+    }
+    val scope = rememberCoroutineScope()
+
+    // Healthy Tips
+    val pagerState = rememberPagerState(pageCount = { healthyFruitTips.size })
+
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(10000)
+            val nextPage = (pagerState.currentPage + 1) % healthyFruitTips.size
+            scope.launch {
+                pagerState.animateScrollToPage(
+                    page = nextPage,
+                    animationSpec = tween(1000)
+                )
+            }
+        }
     }
 
     val mainViewModel: MainViewModel = hiltViewModel()
@@ -120,114 +151,173 @@ fun HomeScreen(
         }
     }
 
-    with(sharedTransitionScope) {
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Text(
-                            text = stringResource(R.string.app_name).uppercase(),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 24.sp,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier
-                                .sharedElement(
-                                    state = rememberSharedContentState(key = "menu-scan-title-fab"),
-                                    animatedVisibilityScope = animatedContentScope
-                                )
-                        )
-                    },
-                    scrollBehavior = scrollBehavior
-                )
-            },
-            floatingActionButtonPosition = FabPosition.Center,
-            floatingActionButton = {
-                Box(
-                    modifier = Modifier
-                        .sharedBounds(
-                            sharedContentState = rememberSharedContentState(key = "menu-scan-fab"),
-                            animatedVisibilityScope = animatedContentScope,
-                            resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds(ContentScale.FillBounds),
-                            placeHolderSize = SharedTransitionScope.PlaceHolderSize.animatedSize
-                        )
-                        .clickable(
-                            interactionSource = mutableInteractionSource.value,
-                            indication = null
-                        ) {
-                            permissionLauncher.launch(Manifest.permission.CAMERA)
-                        }
-                        .shadow(2.dp, RoundedCornerShape(16.dp), clip = true)
-                        .drawWithContent {
-                            rotate(fabColorRotationAnimation) {
-                                drawCircle(
-                                    brush = fabColor,
-                                    radius = size.width,
-                                    blendMode = BlendMode.SrcIn,
-                                )
-                            }
-                            drawContent()
-                        }
-                        .padding(16.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+//    with(sharedTransitionScope) {
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = stringResource(R.string.app_name).uppercase(),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier
+//                                .sharedElement(
+//                                    state = rememberSharedContentState(key = "menu-scan-title-fab"),
+//                                    animatedVisibilityScope = animatedContentScope
+//                                )
+                    )
+                },
+                scrollBehavior = scrollBehavior
+            )
+        },
+        floatingActionButtonPosition = FabPosition.Center,
+        floatingActionButton = {
+            Box(
+                modifier = Modifier
+//                        .sharedBounds(
+//                            sharedContentState = rememberSharedContentState(key = "menu-scan-fab"),
+//                            animatedVisibilityScope = animatedContentScope,
+//                            resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds(ContentScale.FillBounds),
+//                            placeHolderSize = SharedTransitionScope.PlaceHolderSize.animatedSize
+//                        )
+                    .clickable(
+                        interactionSource = mutableInteractionSource.value,
+                        indication = null
                     ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_camera_enhance),
-                            contentDescription = stringResource(R.string.start_scan),
-                            tint = MaterialTheme.colorScheme.surface,
-                            modifier = Modifier
-                                .sharedElement(
-                                    state = rememberSharedContentState(key = "menu-scan-icon-fab"),
-                                    animatedVisibilityScope = animatedContentScope
+                        permissionLauncher.launch(Manifest.permission.CAMERA)
+                    }
+                    .shadow(2.dp, RoundedCornerShape(16.dp), clip = true)
+                    .drawWithContent {
+                        rotate(fabColorRotationAnimation) {
+                            drawCircle(
+                                brush = fabColor,
+                                radius = size.width,
+                                blendMode = BlendMode.SrcIn,
+                            )
+                        }
+                        drawContent()
+                    }
+                    .padding(16.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_camera_enhance),
+                        contentDescription = stringResource(R.string.start_scan),
+                        tint = MaterialTheme.colorScheme.surface,
+                        modifier = Modifier.Companion
+//                                .sharedElement(
+//                                    state = rememberSharedContentState(key = "menu-scan-icon-fab"),
+//                                    animatedVisibilityScope = animatedContentScope
+//                                )
+                    )
+                    Text(
+                        text = stringResource(R.string.start_scan),
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.surface
+                    )
+                }
+            }
+        },
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+    ) { innerPadding ->
+        Column(
+            verticalArrangement = Arrangement.spacedBy(32.dp),
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+        ) {
+            Text(
+                buildAnnotatedString {
+                    withStyle(
+                        style = SpanStyle(
+                            fontSize = 28.sp,
+                            brush = Brush.linearGradient(
+                                listOf(
+                                    MaterialTheme.colorScheme.primary,
+                                    MaterialTheme.colorScheme.tertiary,
+                                    MaterialTheme.colorScheme.primaryContainer
                                 )
-                        )
-                        Text(
-                            text = stringResource(R.string.start_scan),
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.surface
+                            )
+                        ),
+                    ) {
+                        append(
+                            stringResource(
+                                R.string.welcome_with_args,
+                                mainViewModel.userName
+                            )
                         )
                     }
-                }
-            },
-            modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
-        ) { innerPadding ->
+                    withStyle(
+                        style = SpanStyle(
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Light
+                        ),
+                    ) { append(stringResource(R.string.greeting_message)) }
+                },
+                lineHeight = 28.sp,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
             Column(
-                verticalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
-                    .padding(innerPadding)
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .padding(horizontal = 16.dp)
-                    .verticalScroll(scrollState)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_lightbulb_circle),
+                        contentDescription = stringResource(R.string.healthy_tips)
+                    )
+                    Text(
+                        text = stringResource(R.string.healthy_tips),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp
+                    )
+                }
+                Card(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    HorizontalPager(
+                        state = pagerState,
+                        contentPadding = PaddingValues(16.dp),
+                        pageSpacing = 16.dp,
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.fillMaxWidth()
+                    ) { page ->
+                        Column(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = healthyFruitTips[page].split(":").first(),
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(text = healthyFruitTips[page].split(": ").last())
+                        }
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(72.dp))
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    buildAnnotatedString {
-                        withStyle(
-                            style = SpanStyle(
-                                fontSize = 28.sp,
-                                brush = Brush.linearGradient(
-                                    listOf(
-                                        MaterialTheme.colorScheme.primary,
-                                        MaterialTheme.colorScheme.tertiary,
-                                        MaterialTheme.colorScheme.primaryContainer
-                                    )
-                                )
-                            ),
-                        ) { append(stringResource(R.string.welcome_with_args, mainViewModel.userName)) }
-                        withStyle(
-                            style = SpanStyle(
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Light
-                            ),
-                        ) { append(stringResource(R.string.greeting_message)) }
-                    },
-                    lineHeight = 28.sp
+                    text = stringResource(R.string.start_scan_to_get_drink_recommendation),
+                    textAlign = TextAlign.Center
                 )
             }
         }
     }
+//    }
 }
 
 fun hasCameraPermission(context: Context) = ContextCompat.checkSelfPermission(

@@ -71,7 +71,7 @@ fun ForgetPasswordScreen(
         }
     }
 
-    with(sharedTransitionScope) {
+//    with(sharedTransitionScope) {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
@@ -81,10 +81,10 @@ fun ForgetPasswordScreen(
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.Companion
-                                .sharedBounds(
-                                    sharedTransitionScope.rememberSharedContentState(key = "text-${R.string.forget_password}"),
-                                    animatedVisibilityScope = animatedContentScope,
-                                )
+//                                .sharedBounds(
+//                                    sharedTransitionScope.rememberSharedContentState(key = "text-${R.string.forget_password}"),
+//                                    animatedVisibilityScope = animatedContentScope,
+//                                )
                         )
                     },
                     navigationIcon = {
@@ -169,5 +169,5 @@ fun ForgetPasswordScreen(
                 )
             }
         }
-    }
+//    }
 }

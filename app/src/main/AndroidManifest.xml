@@ -12,27 +12,41 @@
     <application
         android:name=".SatuSehatApp"
         android:allowBackup="true"
-        android:usesCleartextTraffic="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
+        android:enableOnBackInvokedCallback="true"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SehatScan"
-        android:enableOnBackInvokedCallback="true"
+        android:usesCleartextTraffic="true"
         tools:targetApi="tiramisu">
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:windowSoftInputMode="stateVisible|adjustResize"
-            android:theme="@style/Theme.SehatScan">
+            android:theme="@style/Theme.SehatScan"
+            android:windowSoftInputMode="stateVisible|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+<!--        &lt;!&ndash;suppress AndroidDomInspection &ndash;&gt;-->
+<!--        <service-->
+<!--            android:name="com.google.android.gms.metadata.ModuleDependencies"-->
+<!--            android:enabled="false"-->
+<!--            android:exported="false"-->
+<!--            tools:ignore="MissingClass">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="com.google.android.gms.metadata.MODULE_DEPENDENCIES" />-->
+<!--            </intent-filter>-->
+<!--            <meta-data-->
+<!--                android:name="photopicker_activity:0:required"-->
+<!--                android:value="" />-->
+<!--        </service>-->
     </application>
 
 </manifest>

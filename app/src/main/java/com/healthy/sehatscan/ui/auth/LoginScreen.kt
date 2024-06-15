@@ -105,7 +105,7 @@ fun LoginScreen(
         }
     }
 
-    with(sharedTransitionScope) {
+//    with(sharedTransitionScope) {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
@@ -222,10 +222,10 @@ fun LoginScreen(
                     Text(
                         text = stringResource(R.string.forget_password),
                         modifier = Modifier.Companion
-                            .sharedBounds(
-                                sharedTransitionScope.rememberSharedContentState(key = "text-${R.string.forget_password}"),
-                                animatedVisibilityScope = animatedContentScope,
-                            )
+//                            .sharedBounds(
+//                                sharedTransitionScope.rememberSharedContentState(key = "text-${R.string.forget_password}"),
+//                                animatedVisibilityScope = animatedContentScope,
+//                            )
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))
@@ -245,10 +245,10 @@ fun LoginScreen(
                         Text(
                             text = stringResource(R.string.register),
                             modifier = Modifier.Companion
-                                .sharedBounds(
-                                    sharedTransitionScope.rememberSharedContentState(key = "text-${R.string.register}"),
-                                    animatedVisibilityScope = animatedContentScope
-                                )
+//                                .sharedBounds(
+//                                    sharedTransitionScope.rememberSharedContentState(key = "text-${R.string.register}"),
+//                                    animatedVisibilityScope = animatedContentScope
+//                                )
                         )
                     }
                 }
@@ -266,5 +266,5 @@ fun LoginScreen(
                 )
             }
         }
-    }
+//    }
 }

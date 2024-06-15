@@ -4,13 +4,10 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -48,7 +45,7 @@ fun DrinkDetailScreen(
     val scrollState = rememberScrollState()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val painter =
-        rememberAsyncImagePainter(model = "https://picsum.photos/200/300") // TODO: Change Image Drink
+        rememberAsyncImagePainter(model = "https://assets.clevelandclinic.org/transform/47cdb246-3c9d-4efb-8b3b-1e6b85567a16/Fruit-Juice-155376375-770x533-1_jpg") // TODO: Change Image Drink
 
     Scaffold(
         topBar = {
@@ -87,12 +84,16 @@ fun DrinkDetailScreen(
                         .fillMaxWidth()
                         .height(250.dp)
                 )
-                Text(
-                    text = drinkItem.drinkName ?: "-",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
-                )
-                Text(text = drinkItem.description ?: "-")
+                Column(
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                ) {
+                    Text(
+                        text = drinkItem.drinkName ?: "",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+                    Text(text = drinkItem.description ?: "")
+                }
             }
         } else {
             Box(contentAlignment = Alignment.Center) {

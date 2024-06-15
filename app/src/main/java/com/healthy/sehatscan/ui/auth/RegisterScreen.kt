@@ -113,7 +113,7 @@ fun RegisterScreen(
     // Validation
     val isLoading = viewModel.isLoading
 
-    with(sharedTransitionScope) {
+//    with(sharedTransitionScope) {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
@@ -123,10 +123,10 @@ fun RegisterScreen(
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.Companion
-                                .sharedBounds(
-                                    sharedTransitionScope.rememberSharedContentState(key = "text-${R.string.register}"),
-                                    animatedVisibilityScope = animatedContentScope,
-                                )
+//                                .sharedBounds(
+//                                    sharedTransitionScope.rememberSharedContentState(key = "text-${R.string.register}"),
+//                                    animatedVisibilityScope = animatedContentScope,
+//                                )
                         )
                     },
                     navigationIcon = {
@@ -328,7 +328,7 @@ fun RegisterScreen(
                 )
             }
         }
-    }
+//    }
 }
 
 @Composable

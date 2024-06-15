@@ -13,7 +13,7 @@ import org.tensorflow.lite.task.vision.classifier.ImageClassifier
 
 class TfLiteFruitClassifier(
     private val context: Context,
-    private val threshold: Float = 0.7f,
+    private val threshold: Float = 0.8f,
     private val maxResults: Int = 3
 ) : FruitClassifier {
     private var classifier: ImageClassifier? = null
@@ -53,6 +53,7 @@ class TfLiteFruitClassifier(
 
         val results = classifier?.classify(tensorImage, imageProcessingOptions)
 
+        println(results.toString())
         return results?.flatMap { classifications ->
             classifications.categories.map { category ->
                 Classification(name = category.label, score = category.score)

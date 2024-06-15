@@ -1,5 +1,10 @@
 package com.healthy.sehatscan.utility
 
+import android.content.ContentResolver
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -15,6 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import java.io.InputStream
 
 // Shared View Model
 @Composable
@@ -51,3 +57,16 @@ fun Modifier.dashedBorder(strokeWidth: Dp, color: Color, cornerRadiusDp: Dp) = c
         )
     }
 )
+
+fun uriToBitmap(context: Context, uri: Uri?): Bitmap? {
+    if (uri == null) return null
+
+    return try {
+        val contentResolver: ContentResolver = context.contentResolver
+        val inputStream: InputStream? = contentResolver.openInputStream(uri)
+        BitmapFactory.decodeStream(inputStream)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}

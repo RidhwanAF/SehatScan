@@ -26,9 +26,9 @@ import com.healthy.sehatscan.ui.auth.LoginScreen
 import com.healthy.sehatscan.ui.auth.RegisterScreen
 import com.healthy.sehatscan.ui.favorite.FavoriteScreen
 import com.healthy.sehatscan.ui.history.HistoryScreen
-import com.healthy.sehatscan.ui.home.drink.DrinksScreen
 import com.healthy.sehatscan.ui.home.HomeScreen
 import com.healthy.sehatscan.ui.home.ScanScreen
+import com.healthy.sehatscan.ui.home.drink.DrinksScreen
 import com.healthy.sehatscan.ui.profile.ProfileScreen
 import com.healthy.sehatscan.utility.sharedViewModel
 
@@ -105,7 +105,9 @@ fun NavigationGraph(
 
             // MainScreen
             composable(
-                route = Route.MainScreen.Home.route
+                route = Route.MainScreen.Home.route,
+                popEnterTransition = { fadeIn() },
+                popExitTransition = { fadeOut() }
             ) {
                 HomeScreen(
                     navController = navController,
@@ -124,7 +126,13 @@ fun NavigationGraph(
             }
 
             // Other
-            composable(route = Route.ScreenRoute.ImageScan.name) {
+            composable(
+                route = Route.ScreenRoute.ImageScan.name,
+                enterTransition = { slideInVertically { it } },
+                exitTransition = { slideOutVertically { it } },
+                popEnterTransition = { slideInVertically { it } },
+                popExitTransition = { slideOutVertically { it } }
+            ) {
                 ScanScreen(
                     navController = navController,
                     this@SharedTransitionLayout,
