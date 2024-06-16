@@ -1,11 +1,13 @@
 package com.healthy.sehatscan.data.repository
 
 import android.content.Context
+import android.widget.Toast
 import com.google.gson.Gson
 import com.google.gson.JsonObject
 import com.healthy.sehatscan.R
 import com.healthy.sehatscan.data.local.auth.AuthDataStore
 import com.healthy.sehatscan.data.remote.ApiService
+import com.healthy.sehatscan.data.remote.drink.response.FavoriteDrink
 import com.healthy.sehatscan.data.remote.drink.response.FavoriteDrink.FavoriteItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import retrofit2.Response
 import javax.inject.Inject
 
 class FavoriteRepository @Inject constructor(
@@ -20,6 +23,7 @@ class FavoriteRepository @Inject constructor(
     private val apiService: ApiService,
     private val authDataStore: AuthDataStore
 ) {
+    // List
     private var _favoriteList = MutableStateFlow<List<FavoriteItem>>(emptyList())
     val favoriteList: StateFlow<List<FavoriteItem>> = _favoriteList
 
@@ -35,6 +39,7 @@ class FavoriteRepository @Inject constructor(
         }
     }
 
+    // Get List
     suspend fun getUserFavorite() {
         withContext(Dispatchers.IO) {
             try {
@@ -70,4 +75,17 @@ class FavoriteRepository @Inject constructor(
             }
         }
     }
+
+    // Add Remove Favorite
+    suspend fun addFavorite(
+        token: String,
+        data: FavoriteDrink.AddRemoveFavoriteReqBody
+    ): Response<FavoriteDrink.AddRemoveResponse> =
+        apiService.addRemoveFavorite(token, "like", data)
+
+    suspend fun removeFavorite(
+        token: String,
+        data: FavoriteDrink.AddRemoveFavoriteReqBody
+    ): Response<FavoriteDrink.AddRemoveResponse> =
+        apiService.addRemoveFavorite(token, "unlike", data)
 }

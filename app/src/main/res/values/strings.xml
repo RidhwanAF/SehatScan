@@ -76,7 +76,10 @@
     <string name="gallery">Galeri</string>
     <string name="failed_to_get_user_data">Gagal mendapatkan data pengguna</string>
     <string name="failed_to_get_favorite_drink">Gagal mendapatkan data minuman favorite</string>
-    <string name="no_favorite_data">Belum ada data Favorit</string>
+    <string name="no_favorite_data">Data Favorit tidak tersedia</string>
     <string name="remove_favorite">Hapus Favorit</string>
     <string name="remove_favorite_list">Apakah anda yakin ingin menghapus minuman ini dari daftar favorit?</string>
+    <string name="failed_to_add_favorite_drink">Gagal menambahkan favorit</string>
+    <string name="success_add_to_favorite">Berhasil menambahkan ke favorit</string>
+    <string name="warning">Peringatan</string>
 </resources>

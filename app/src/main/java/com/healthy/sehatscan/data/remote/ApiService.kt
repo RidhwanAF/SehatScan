@@ -16,6 +16,7 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 interface ApiService {
     // AUTH
@@ -73,4 +74,11 @@ interface ApiService {
     suspend fun getFavoriteDrink(
         @Header("Authorization") token: String
     ): Response<FavoriteDrink.GetFavoriteResponse>
+
+    @POST("api/v1/drink/action")
+    suspend fun addRemoveFavorite(
+        @Header("Authorization") token: String,
+        @Query("type") type: String,
+        @Body data: FavoriteDrink.AddRemoveFavoriteReqBody
+    ): Response<FavoriteDrink.AddRemoveResponse>
 }

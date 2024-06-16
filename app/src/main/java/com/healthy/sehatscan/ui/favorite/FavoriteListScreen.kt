@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -37,6 +38,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -57,6 +59,7 @@ fun FavoriteListScreen(
     viewModel: FavoriteViewModel,
     onItemClicked: (Int?) -> Unit
 ) {
+    val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     // Data
@@ -151,12 +154,28 @@ fun FavoriteListScreen(
             AlertDialog(
                 onDismissRequest = { removeFavoriteDialog = null },
                 confirmButton = {
-                    TextButton(onClick = { /*TODO*/ }) { // TODO : Implement later
+                    TextButton(
+                        onClick = {
+                            val reqBody = FavoriteDrink.AddRemoveFavoriteReqBody(
+                                removeFavoriteDialog ?: 0
+                            )
+                            removeFavoriteDialog = null
+                            viewModel.removeFavorite(context, reqBody)
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
                         Text(text = stringResource(R.string.yes))
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { removeFavoriteDialog = null }) {
+                    TextButton(
+                        onClick = { removeFavoriteDialog = null },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.onBackground.copy(0.5f)
+                        )
+                    ) {
                         Text(text = stringResource(R.string.no))
                     }
                 },

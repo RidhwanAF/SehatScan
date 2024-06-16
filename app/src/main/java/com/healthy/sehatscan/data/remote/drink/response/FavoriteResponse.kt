@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName
 import com.healthy.sehatscan.data.remote.ResponseMetaData
 
 class FavoriteDrink {
+    // Get
     data class GetFavoriteResponse(
         @field:SerializedName("data")
         val data: List<FavoriteItem>? = null,
@@ -29,5 +30,20 @@ class FavoriteDrink {
         val drink: Drink? = null,
         @field:SerializedName("updatedAt")
         val updatedAt: String? = null
+    )
+
+    // Add Remove
+    data class AddRemoveResponse(
+
+        @field:SerializedName("data")
+        val data: Any? = null,
+
+        @field:SerializedName("meta")
+        val meta: ResponseMetaData? = null
+    )
+
+    data class AddRemoveFavoriteReqBody(
+        @field:SerializedName("drink_id")
+        val drinkId: Int
     )
 }
