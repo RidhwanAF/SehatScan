@@ -74,4 +74,9 @@
     <string name="start_scan_to_get_drink_recommendation">Mulai scan dan dapatkan rekomendasi minuman!</string>
     <string name="choose_picture_from_gallery">Ambil gambar dari galeri</string>
     <string name="gallery">Galeri</string>
+    <string name="failed_to_get_user_data">Gagal mendapatkan data pengguna</string>
+    <string name="failed_to_get_favorite_drink">Gagal mendapatkan data minuman favorite</string>
+    <string name="no_favorite_data">Belum ada data Favorit</string>
+    <string name="remove_favorite">Hapus Favorit</string>
+    <string name="remove_favorite_list">Apakah anda yakin ingin menghapus minuman ini dari daftar favorit?</string>
 </resources>

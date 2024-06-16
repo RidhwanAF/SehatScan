@@ -6,6 +6,7 @@ import com.healthy.sehatscan.data.remote.auth.response.UserRegister
 import com.healthy.sehatscan.data.remote.disease.response.GetDiseaseResponse
 import com.healthy.sehatscan.data.remote.drink.response.DrinkRecommendReqBody
 import com.healthy.sehatscan.data.remote.drink.response.DrinkResponse
+import com.healthy.sehatscan.data.remote.drink.response.FavoriteDrink
 import com.healthy.sehatscan.data.remote.fruit.response.FruitResponse
 import com.healthy.sehatscan.data.remote.user.response.UpdateAllergiesResponse
 import com.healthy.sehatscan.data.remote.user.response.UpdateDiseaseResponse
@@ -67,4 +68,9 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body data: DrinkRecommendReqBody
     ): Response<DrinkResponse>
+
+    @GET("api/v1/user/favorite")
+    suspend fun getFavoriteDrink(
+        @Header("Authorization") token: String
+    ): Response<FavoriteDrink.GetFavoriteResponse>
 }

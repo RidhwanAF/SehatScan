@@ -6,6 +6,7 @@ import com.healthy.sehatscan.appsetting.data.AppSettingDataStore
 import com.healthy.sehatscan.appsetting.domain.AppSettingRepository
 import com.healthy.sehatscan.data.local.auth.AuthDataStore
 import com.healthy.sehatscan.data.remote.ApiService
+import com.healthy.sehatscan.data.repository.FavoriteRepository
 import com.healthy.sehatscan.data.repository.UserRepository
 import dagger.Module
 import dagger.Provides
@@ -78,6 +79,19 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideUserRepository(apiService: ApiService): UserRepository =
-        UserRepository(apiService)
+    fun provideUserRepository(
+        @ApplicationContext context: Context,
+        apiService: ApiService,
+        authDataStore: AuthDataStore
+    ): UserRepository =
+        UserRepository(context, apiService, authDataStore)
+
+    @Provides
+    @Singleton
+    fun provideFavoriteRepository(
+        @ApplicationContext context: Context,
+        apiService: ApiService,
+        authDataStore: AuthDataStore
+    ): FavoriteRepository =
+        FavoriteRepository(context, apiService, authDataStore)
 }

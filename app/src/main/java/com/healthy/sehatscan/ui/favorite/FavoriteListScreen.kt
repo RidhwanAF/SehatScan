@@ -13,6 +13,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -20,9 +25,14 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -30,19 +40,36 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.SubcomposeAsyncImage
 import com.healthy.sehatscan.R
+import com.healthy.sehatscan.data.remote.drink.response.FavoriteDrink
+import com.healthy.sehatscan.ui.home.drink.ItemShimmerLoading
 import com.valentinilk.shimmer.shimmer
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FavoriteListScreen(
-    onItemClicked: (String) -> Unit
+    viewModel: FavoriteViewModel,
+    onItemClicked: (Int?) -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+
+    // Data
+    val favoriteList by viewModel.favoriteDrink.collectAsStateWithLifecycle()
+
+    // UI State
+    val isFavoriteLoading by viewModel.isFavoriteLoading.collectAsStateWithLifecycle()
+    val favoriteErrorMessage by viewModel.favoriteErrorMessage.collectAsStateWithLifecycle()
+
+    // Action
+    var removeFavoriteDialog by rememberSaveable {
+        mutableStateOf<Int?>(null)
+    }
 
     Scaffold(
         topBar = {
@@ -71,21 +98,95 @@ fun FavoriteListScreen(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            items(100) {
-                FavoriteListItem(
-                    item = "$it"
-                ) {
-                    onItemClicked(it)
+            if (isFavoriteLoading) {
+                items(3) {
+                    ItemShimmerLoading()
+                }
+            } else {
+                if (favoriteList.isNotEmpty()) {
+                    items(
+                        items = favoriteList,
+                        key = { favoriteItem: FavoriteDrink.FavoriteItem -> favoriteItem.favoriteId }
+                    ) { favoriteItem ->
+                        FavoriteListItem(
+                            item = favoriteItem,
+                            onRemoved = {
+                                removeFavoriteDialog = it
+                            }
+                        ) { id ->
+                            onItemClicked(id)
+                        }
+                    }
+                } else {
+                    item {
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(
+                                text = if (favoriteErrorMessage != null) favoriteErrorMessage
+                                    ?: "" else stringResource(R.string.no_favorite_data),
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp)
+                            )
+                            IconButton(
+                                onClick = {
+                                    viewModel.getFavoriteDrink()
+                                }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Refresh,
+                                    contentDescription = stringResource(R.string.refresh)
+                                )
+                            }
+                        }
+                    }
                 }
             }
+        }
+
+        removeFavoriteDialog?.let {
+            AlertDialog(
+                onDismissRequest = { removeFavoriteDialog = null },
+                confirmButton = {
+                    TextButton(onClick = { /*TODO*/ }) { // TODO : Implement later
+                        Text(text = stringResource(R.string.yes))
+                    }
+                },
+                dismissButton = {
+                    TextButton(onClick = { removeFavoriteDialog = null }) {
+                        Text(text = stringResource(R.string.no))
+                    }
+                },
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = stringResource(R.string.remove_favorite),
+                        tint = MaterialTheme.colorScheme.error
+                    )
+                },
+                title = {
+                    Text(text = stringResource(R.string.remove_favorite))
+                },
+                text = {
+                    Text(text = stringResource(R.string.remove_favorite_list))
+                }
+            )
         }
     }
 }
 
 @Composable
-fun FavoriteListItem(modifier: Modifier = Modifier, item: String, onItemClicked: (String) -> Unit) {
+fun FavoriteListItem(
+    modifier: Modifier = Modifier,
+    item: FavoriteDrink.FavoriteItem,
+    onRemoved: (Int?) -> Unit,
+    onItemClicked: (Int?) -> Unit
+) {
     Card(
-        onClick = { onItemClicked(item) },
+        onClick = { onItemClicked(item.favoriteId) },
         modifier = Modifier.padding(vertical = 8.dp)
     ) {
         Row(
@@ -96,7 +197,7 @@ fun FavoriteListItem(modifier: Modifier = Modifier, item: String, onItemClicked:
                 .height(150.dp)
         ) {
             SubcomposeAsyncImage(
-                model = "https://thumb.photo-ac.com/13/130ecf0d1b3cbb04e38c509600e5f289_t.jpeg",
+                model = "https://thumb.photo-ac.com/13/130ecf0d1b3cbb04e38c509600e5f289_t.jpeg", // TODO: Change Image
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 loading = {
@@ -135,23 +236,24 @@ fun FavoriteListItem(modifier: Modifier = Modifier, item: String, onItemClicked:
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(
-                        text = "Juice $item",
+                        text = item.drink?.drinkName ?: "-",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Text(text = "Apel, Jeruk", maxLines = 1, overflow = TextOverflow.Ellipsis)
+//                    Text(text = "Apel, Jeruk", maxLines = 1, overflow = TextOverflow.Ellipsis)
                     Text(
-                        text = "Jus untuk memenuhi asupan vitamin harianmu",
+                        text = item.drink?.description ?: "",
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-                IconButton(onClick = { /*TODO*/ }) {
+                IconButton(onClick = { onRemoved(item.drink?.drinkId) }) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_favorite),
-                        contentDescription = stringResource(R.string.favorite)
+                        painter = painterResource(R.drawable.ic_favorite_filled),
+                        contentDescription = stringResource(R.string.favorite),
+                        tint = MaterialTheme.colorScheme.error
                     )
                 }
             }

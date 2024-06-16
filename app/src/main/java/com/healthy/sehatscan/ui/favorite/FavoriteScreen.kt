@@ -7,33 +7,34 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffold
 import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
-import com.healthy.sehatscan.R
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun FavoriteScreen() {
-    val navigator = rememberListDetailPaneScaffoldNavigator<Any>()
+    val navigator = rememberListDetailPaneScaffoldNavigator<Int>()
 
     BackHandler(navigator.canNavigateBack()) {
         navigator.navigateBack()
     }
+
+    val viewModel: FavoriteViewModel = hiltViewModel()
 
     ListDetailPaneScaffold(
         directive = navigator.scaffoldDirective,
         value = navigator.scaffoldValue,
         listPane = {
             AnimatedPane {
-                FavoriteListScreen {
+                FavoriteListScreen(viewModel) {
                     navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it)
                 }
             }
         },
         detailPane = {
-            val content = navigator.currentDestination?.content?.toString()
-                ?: stringResource(R.string.select_item)
-            AnimatedPane {
-                FavoriteDetailScreen(content)
+            navigator.currentDestination?.content?.let {
+                AnimatedPane {
+                    FavoriteDetailScreen(it, navigator, viewModel)
+                }
             }
         }
     )

@@ -77,9 +77,6 @@ class ProfileViewModel @Inject constructor(
 
 
     init {
-        if (userDataResult.value == null) {
-            getUserProfileData()
-        }
         viewModelScope.launch {
             authDataStore.getNamePreferenceState().collect {
                 userName = it
@@ -134,9 +131,7 @@ class ProfileViewModel @Inject constructor(
     // Api Request
     private fun getUserProfileData() {
         viewModelScope.launch(Dispatchers.IO) {
-            authDataStore.getTokenPreferenceState().collect { token ->
-                userRepo.getUserProfileData(token)
-            }
+            userRepo.getUserProfileData()
         }
     }
 
