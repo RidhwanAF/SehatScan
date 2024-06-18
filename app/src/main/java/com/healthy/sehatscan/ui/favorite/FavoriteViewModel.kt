@@ -51,6 +51,7 @@ class FavoriteViewModel @Inject constructor(
                 authDataStore.getTokenPreferenceState().collect { token ->
                     val response = repository.addFavorite("Bearer $token", data)
                     if (response.isSuccessful) {
+                        getFavoriteDrink()
                         Toast.makeText(
                             context,
                             response.body()?.meta?.message
