@@ -152,6 +152,9 @@ fun ProfileScreen() {
     val userAllergies by viewModel.userAllergies.collectAsStateWithLifecycle()
     val userMedicalHistory by viewModel.userMedicalHistory.collectAsStateWithLifecycle()
 
+    val isUpdateProfileUpdateLoading by viewModel.isUpdateUserLoading.collectAsStateWithLifecycle()
+    val updateProfileErrorMessage by viewModel.updateProfileErrorMessage.collectAsStateWithLifecycle()
+
     fun onEditDismiss() {
         isOnEdit = null
         viewModel.onAllergyChange(userAllergies.map { it.fruits?.fruitId ?: -1 })
@@ -362,8 +365,9 @@ fun ProfileScreen() {
         ) {
             when (isOnEdit) {
                 0 -> NameEditTextField(viewModel = viewModel) {
-                    isOnEdit = null
-                    // TODO : OnDone Edit
+                    viewModel.updateUserProfile(context) {
+                        isOnEdit = null
+                    }
                 }
 
                 1 -> MedicalHistoryTextField(
@@ -455,7 +459,7 @@ fun ProfileScreen() {
     }
 
     // Dialog Screen State
-    if (viewModel.isUpdateAllergiesLoading || viewModel.isUpdateDiseaseLoading) {
+    if (viewModel.isUpdateAllergiesLoading || viewModel.isUpdateDiseaseLoading || isUpdateProfileUpdateLoading) {
         LoadingDialog(stringResource(R.string.updating))
     }
 
@@ -469,6 +473,38 @@ fun ProfileScreen() {
 
     viewModel.updateAllergiesErrorMessage?.let {
         Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+    }
+
+    if (updateProfileErrorMessage != null) {
+        AlertDialog(
+            onDismissRequest = { viewModel.clearUpdateProfileValidate() },
+            confirmButton = {
+                TextButton(onClick = { viewModel.clearUpdateProfileValidate() }) {
+                    Text(text = stringResource(R.string.close))
+                }
+            },
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = stringResource(R.string.failed),
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
+            title = {
+                Text(
+                    text = stringResource(R.string.failed),
+                    color = MaterialTheme.colorScheme.error
+                )
+            },
+            text = {
+                Text(
+                    text = updateProfileErrorMessage
+                        ?: stringResource(R.string.failed_to_update_profile),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+        )
     }
 }
 

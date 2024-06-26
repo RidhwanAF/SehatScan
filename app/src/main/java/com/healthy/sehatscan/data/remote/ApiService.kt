@@ -11,12 +11,14 @@ import com.healthy.sehatscan.data.remote.drink.response.FavoriteDrink
 import com.healthy.sehatscan.data.remote.fruit.response.FruitResponse
 import com.healthy.sehatscan.data.remote.user.response.UpdateAllergiesResponse
 import com.healthy.sehatscan.data.remote.user.response.UpdateDiseaseResponse
+import com.healthy.sehatscan.data.remote.user.response.UserProfileData
 import com.healthy.sehatscan.data.remote.user.response.UserResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Query
 
 interface ApiService {
@@ -41,6 +43,12 @@ interface ApiService {
     suspend fun getUser(
         @Header("Authorization") token: String
     ): Response<UserResponse>
+
+    @PUT("api/v1/user/profile")
+    suspend fun updateProfile(
+        @Header("Authorization") token: String,
+        @Body requestBody: UserProfileData.UpdateProfileReqBody
+    ): Response<UserProfileData.UpdateProfileResponse>
 
     @GET("api/v1/disease")
     suspend fun getDisease(

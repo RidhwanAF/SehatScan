@@ -9,12 +9,14 @@ import com.healthy.sehatscan.data.remote.ApiService
 import com.healthy.sehatscan.data.remote.user.response.HistoryAllergiesItem
 import com.healthy.sehatscan.data.remote.user.response.HistoryDiseasesItem
 import com.healthy.sehatscan.data.remote.user.response.UserData
+import com.healthy.sehatscan.data.remote.user.response.UserProfileData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import retrofit2.Response
 import javax.inject.Inject
 
 class UserRepository @Inject constructor(
@@ -86,6 +88,11 @@ class UserRepository @Inject constructor(
             }
         }
     }
+
+    suspend fun updateProfile(
+        token: String,
+        data: UserProfileData.UpdateProfileReqBody
+    ): Response<UserProfileData.UpdateProfileResponse> = apiService.updateProfile(token, data)
 
     fun userLogout() {
         _userDataResult.value = null

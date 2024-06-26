@@ -16,9 +16,12 @@ import com.healthy.sehatscan.data.remote.ApiService
 import com.healthy.sehatscan.data.remote.auth.response.UserForgetPassword
 import com.healthy.sehatscan.data.remote.disease.response.DiseaseDataItem
 import com.healthy.sehatscan.data.remote.fruit.response.FruitItem
+import com.healthy.sehatscan.data.remote.user.response.UserProfileData
 import com.healthy.sehatscan.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -338,6 +341,55 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    // Update User Profile
+    private var _isUpdateUserLoading = MutableStateFlow(false)
+    val isUpdateUserLoading: StateFlow<Boolean> = _isUpdateUserLoading
+
+    private var _updateProfileErrorMessage = MutableStateFlow<String?>(null)
+    val updateProfileErrorMessage: StateFlow<String?> = _updateProfileErrorMessage
+
+    fun updateUserProfile(context: Context, onSuccess: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _isUpdateUserLoading.value = true
+            try {
+                authDataStore.getTokenPreferenceState().collect { token ->
+                    val requestBody = UserProfileData.UpdateProfileReqBody(name = userName)
+                    val response = userRepo.updateProfile("Bearer $token", requestBody)
+                    if (response.isSuccessful) {
+                        getUserProfileData()
+                        _isUpdateUserLoading.value = false
+                        onSuccess()
+                    } else {
+                        val errMsg = response.errorBody()?.string()
+                        if (errMsg != null) {
+                            try {
+                                val json = Gson().fromJson(errMsg, JsonObject::class.java)
+                                _updateProfileErrorMessage.value =
+                                    json.getAsJsonObject("meta").get("message").asString
+
+                            } catch (e: Exception) {
+                                _updateProfileErrorMessage.value =
+                                    context.getString(R.string.failed_to_update_profile)
+                            }
+                        } else {
+                            _updateProfileErrorMessage.value =
+                                context.getString(R.string.failed_to_update_profile)
+                        }
+                        _isUpdateUserLoading.value = false
+                    }
+                }
+            } catch (e: Exception) {
+                _isUpdateUserLoading.value = false
+                _updateProfileErrorMessage.value = context.getString(R.string.failed_to_update_profile)
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun clearUpdateProfileValidate() {
+        _updateProfileErrorMessage.value = null
+    }
+
     // OnLogout
     fun logout() {
         viewModelScope.launch {
@@ -356,5 +408,6 @@ class ProfileViewModel @Inject constructor(
         updateDiseaseErrorMessage = null
         updateAllergiesErrorMessage = null
         isFruitLoading = false
+        _updateProfileErrorMessage.value = null
     }
 }

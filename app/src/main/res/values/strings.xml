@@ -86,4 +86,5 @@
     <string name="add_to_favorite">Tambahkan ke Favorit</string>
     <string name="failed_to_get_drink_history">Gagal mendapatkan data histori minuman</string>
     <string name="sort">Urutkan</string>
+    <string name="failed_to_update_profile">Gagal mengubah data profil</string>
 </resources>
