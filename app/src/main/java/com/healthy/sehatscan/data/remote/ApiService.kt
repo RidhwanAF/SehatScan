@@ -4,6 +4,7 @@ import com.healthy.sehatscan.data.remote.auth.response.UserForgetPassword
 import com.healthy.sehatscan.data.remote.auth.response.UserLogin
 import com.healthy.sehatscan.data.remote.auth.response.UserRegister
 import com.healthy.sehatscan.data.remote.disease.response.GetDiseaseResponse
+import com.healthy.sehatscan.data.remote.drink.response.DrinkHistoryResponse
 import com.healthy.sehatscan.data.remote.drink.response.DrinkRecommendReqBody
 import com.healthy.sehatscan.data.remote.drink.response.DrinkResponse
 import com.healthy.sehatscan.data.remote.drink.response.FavoriteDrink
@@ -81,4 +82,9 @@ interface ApiService {
         @Query("type") type: String,
         @Body data: FavoriteDrink.AddRemoveFavoriteReqBody
     ): Response<FavoriteDrink.AddRemoveResponse>
+
+    @GET("api/v1/user/history")
+    suspend fun getDrinkHistory(
+        @Header("Authorization") token: String
+    ): Response<DrinkHistoryResponse>
 }

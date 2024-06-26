@@ -805,6 +805,10 @@ fun DiseaseItem(
     isChecked: Boolean,
     onItemClicked: () -> Unit
 ) {
+    val ingredients = data?.diseaseRestrictions?.map {
+        it.drink?.ingredients?.map { item -> item.fruitName }?.joinToString(", ")
+    }
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -833,9 +837,9 @@ fun DiseaseItem(
                             .padding(horizontal = 4.dp)
                     )
                 }
-                itemsIndexed(data?.diseaseRestrictions ?: emptyList()) { index, item ->
-                    Text(text = item?.fruit?.fruitName ?: "", fontWeight = FontWeight.Light)
-                    if (index != data?.diseaseRestrictions?.lastIndex) {
+                itemsIndexed(ingredients ?: emptyList()) { index, item ->
+                    Text(text = item ?: "", fontWeight = FontWeight.Light)
+                    if (index != ingredients?.lastIndex) {
                         Text(text = ", ", fontWeight = FontWeight.Light)
                     }
                 }

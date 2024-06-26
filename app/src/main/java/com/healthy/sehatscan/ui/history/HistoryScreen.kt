@@ -8,12 +8,16 @@ import androidx.compose.material3.adaptive.layout.ListDetailPaneScaffoldRole
 import androidx.compose.material3.adaptive.navigation.rememberListDetailPaneScaffoldNavigator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.healthy.sehatscan.R
+import com.healthy.sehatscan.data.remote.drink.response.Drink
 
 @OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun HistoryScreen() {
-    val navigator = rememberListDetailPaneScaffoldNavigator<Any>()
+    val navigator = rememberListDetailPaneScaffoldNavigator<Drink>()
+
+    val viewModel: HistoryViewModel = hiltViewModel()
 
     BackHandler(navigator.canNavigateBack()) {
         navigator.navigateBack()
@@ -24,15 +28,15 @@ fun HistoryScreen() {
         value = navigator.scaffoldValue,
         listPane = {
             AnimatedPane {
-                HistoryListScreen {
+                HistoryListScreen(viewModel) {
                     navigator.navigateTo(ListDetailPaneScaffoldRole.Detail, it)
                 }
             }
         },
         detailPane = {
-            val content = navigator.currentDestination?.content?.toString() ?: stringResource(R.string.select_item)
+            val content = navigator.currentDestination?.content
             AnimatedPane {
-                HistoryDetailScreen(content)
+                HistoryDetailScreen(content, viewModel)
             }
         }
     )

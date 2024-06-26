@@ -251,6 +251,7 @@ class ProfileViewModel @Inject constructor(
     fun updateAllergies(
         context: Context
     ) {
+        updateAllergiesErrorMessage = null
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 isUpdateAllergiesLoading = true
@@ -298,6 +299,7 @@ class ProfileViewModel @Inject constructor(
     fun updateDisease(
         context: Context
     ) {
+        updateDiseaseErrorMessage = null
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 isUpdateDiseaseLoading = true
@@ -340,6 +342,7 @@ class ProfileViewModel @Inject constructor(
     fun logout() {
         viewModelScope.launch {
             authDataStore.destroySession()
+            userRepo.userLogout()
         }
     }
 

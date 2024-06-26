@@ -42,6 +42,7 @@ class FavoriteRepository @Inject constructor(
     // Get List
     suspend fun getUserFavorite() {
         withContext(Dispatchers.IO) {
+            _favoriteErrorMessage.value = null
             try {
                 _isFavoriteLoading.value = true
                 authDataStore.getTokenPreferenceState().collect { token ->

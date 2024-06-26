@@ -46,34 +46,37 @@ class UserRepository @Inject constructor(
     }
 
     suspend fun getUserProfileData() {
+        _userDataErrorMessage.value = null
         withContext(Dispatchers.IO) {
             try {
                 _isUserDataLoading.value = true
                 authDataStore.getTokenPreferenceState().collect { token ->
-                    val response = apiService.getUser("Bearer $token")
-                    if (response.isSuccessful) {
-                        _userDataResult.value = response.body()?.data
-                        _userAllergies.value =
-                            response.body()?.data?.allergies ?: emptyList()
-                        _userMedicalList.value =
-                            response.body()?.data?.historyDiseases ?: emptyList()
-                        _isUserDataLoading.value = false
-                    } else {
-                        val errMsg = response.errorBody()?.string()
-                        if (errMsg != null) {
-                            try {
-                                val json = Gson().fromJson(errMsg, JsonObject::class.java)
-                                _userDataErrorMessage.value =
-                                    json.getAsJsonObject("meta").get("message").asString
-                            } catch (e: Exception) {
+                    if (token.isNotEmpty()) {
+                        val response = apiService.getUser("Bearer $token")
+                        if (response.isSuccessful) {
+                            _userDataResult.value = response.body()?.data
+                            _userAllergies.value =
+                                response.body()?.data?.allergies ?: emptyList()
+                            _userMedicalList.value =
+                                response.body()?.data?.historyDiseases ?: emptyList()
+                            _isUserDataLoading.value = false
+                        } else {
+                            val errMsg = response.errorBody()?.string()
+                            if (errMsg != null) {
+                                try {
+                                    val json = Gson().fromJson(errMsg, JsonObject::class.java)
+                                    _userDataErrorMessage.value =
+                                        json.getAsJsonObject("meta").get("message").asString
+                                } catch (e: Exception) {
+                                    _userDataErrorMessage.value =
+                                        context.getString(R.string.failed_to_get_user_data)
+                                }
+                            } else {
                                 _userDataErrorMessage.value =
                                     context.getString(R.string.failed_to_get_user_data)
                             }
-                        } else {
-                            _userDataErrorMessage.value =
-                                context.getString(R.string.failed_to_get_user_data)
+                            _isUserDataLoading.value = false
                         }
-                        _isUserDataLoading.value = false
                     }
                 }
             } catch (e: Exception) {
@@ -82,5 +85,12 @@ class UserRepository @Inject constructor(
                 e.printStackTrace()
             }
         }
+    }
+
+    fun userLogout() {
+        _userDataResult.value = null
+        _userAllergies.value = emptyList()
+        _userMedicalList.value = emptyList()
+        _userDataErrorMessage.value = null
     }
 }

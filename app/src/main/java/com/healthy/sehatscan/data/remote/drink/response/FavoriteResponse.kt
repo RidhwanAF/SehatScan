@@ -12,15 +12,6 @@ class FavoriteDrink {
         val meta: ResponseMetaData? = null
     )
 
-    data class Drink(
-        @field:SerializedName("drink_name")
-        val drinkName: String? = null,
-        @field:SerializedName("description")
-        val description: String? = null,
-        @field:SerializedName("drink_id")
-        val drinkId: Int? = null
-    )
-
     data class FavoriteItem(
         @field:SerializedName("createdAt")
         val createdAt: String? = null,

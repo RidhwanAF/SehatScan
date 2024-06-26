@@ -84,4 +84,6 @@
     <string name="success_add_to_favorite">Berhasil menambahkan ke favorit</string>
     <string name="warning">Peringatan</string>
     <string name="add_to_favorite">Tambahkan ke Favorit</string>
+    <string name="failed_to_get_drink_history">Gagal mendapatkan data histori minuman</string>
+    <string name="sort">Urutkan</string>
 </resources>

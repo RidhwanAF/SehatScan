@@ -261,12 +261,8 @@ fun FavoriteListItem(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-//                    Text(text = "Apel, Jeruk", maxLines = 1, overflow = TextOverflow.Ellipsis)
-                    Text(
-                        text = item.drink?.description ?: "",
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Text(text = item.drink?.ingredients?.joinToString(", ") { it.fruitName ?: "" }
+                        ?: "", maxLines = 1, overflow = TextOverflow.Ellipsis)
                 }
                 IconButton(onClick = { onRemoved(item.drink?.drinkId) }) {
                     Icon(

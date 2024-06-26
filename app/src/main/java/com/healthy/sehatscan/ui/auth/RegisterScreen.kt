@@ -110,9 +110,6 @@ fun RegisterScreen(
         }
     }
 
-    // Validation
-    val isLoading = viewModel.isLoading
-
 //    with(sharedTransitionScope) {
         Scaffold(
             topBar = {
@@ -273,7 +270,7 @@ fun RegisterScreen(
                 )
                 Button(
                     onClick = {
-                        if (!isLoading) {
+                        if (!viewModel.isLoading) {
                             onRegister()
                         }
                     },
@@ -283,7 +280,7 @@ fun RegisterScreen(
                         .fillMaxWidth()
                         .padding(top = 16.dp)
                 ) {
-                    if (isLoading) {
+                    if (viewModel.isLoading) {
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
                     } else {
                         Text(stringResource(R.string.register).uppercase())

@@ -21,6 +21,9 @@ import androidx.lifecycle.ViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import java.io.InputStream
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 // Shared View Model
 @Composable
@@ -69,4 +72,11 @@ fun uriToBitmap(context: Context, uri: Uri?): Bitmap? {
         e.printStackTrace()
         null
     }
+}
+
+fun formatDate(date: String): String {
+    val locale = Locale("id", "ID")
+    val current = LocalDate.parse(date)
+    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", locale)
+    return current.format(formatter)
 }
