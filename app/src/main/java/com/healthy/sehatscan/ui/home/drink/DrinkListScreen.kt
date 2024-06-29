@@ -6,7 +6,9 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -25,7 +27,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -54,8 +59,19 @@ fun DrinkListScreen(
 ) {
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val pullToRefreshState = rememberPullToRefreshState()
     val reqBody = DrinkRecommendReqBody(fruit)
     val drinkList = viewModel.drinkListResult
+
+    if (pullToRefreshState.isRefreshing) {
+        LaunchedEffect(true) {
+            if (!viewModel.isDrinkLoading)
+                viewModel.getDrinkRecommendation(context, reqBody)
+        }
+    }
+    LaunchedEffect(viewModel.isDrinkLoading) {
+        if (viewModel.isDrinkLoading) pullToRefreshState.startRefresh() else pullToRefreshState.endRefresh()
+    }
 
     Scaffold(
         topBar = {
@@ -74,52 +90,68 @@ fun DrinkListScreen(
                 scrollBehavior = scrollBehavior
             )
         },
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+        modifier = Modifier
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
+            .nestedScroll(pullToRefreshState.nestedScrollConnection)
     ) { innerPadding ->
-        LazyColumn(
-            contentPadding = innerPadding
+        Box(
+            modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
         ) {
-            if (viewModel.isDrinkLoading) {
-                items(3) {
-                    ItemShimmerLoading()
-                }
-            } else {
-                if (drinkList.isNotEmpty()) {
-                    items(drinkList) { data ->
-                        DrinkRecommendItem(data = data) {
-                            onItemClicked(data)
-                        }
+            LazyColumn(
+                contentPadding = PaddingValues(
+                    bottom = innerPadding.calculateBottomPadding(),
+                    start = 16.dp,
+                    end = 16.dp
+                ),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                if (viewModel.isDrinkLoading) {
+                    items(3) {
+                        ItemShimmerLoading()
                     }
                 } else {
-                    item {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = viewModel.drinkListErrorMessage ?: "",
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            )
-                            IconButton(
-                                onClick = {
-                                    viewModel.getDrinkRecommendation(
-                                        context,
-                                        reqBody
+                    if (drinkList.isNotEmpty()) {
+                        items(drinkList) { data ->
+                            DrinkRecommendItem(data = data) {
+                                onItemClicked(data)
+                            }
+                        }
+                    } else {
+                        item {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = viewModel.drinkListErrorMessage ?: "",
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                )
+                                IconButton(
+                                    onClick = {
+                                        viewModel.getDrinkRecommendation(
+                                            context,
+                                            reqBody
+                                        )
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Refresh,
+                                        contentDescription = stringResource(R.string.refresh)
                                     )
                                 }
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Refresh,
-                                    contentDescription = stringResource(R.string.refresh)
-                                )
                             }
                         }
                     }
                 }
             }
+            PullToRefreshContainer(
+                state = pullToRefreshState,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+            )
         }
     }
 }

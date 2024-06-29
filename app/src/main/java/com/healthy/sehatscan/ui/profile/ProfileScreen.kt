@@ -54,6 +54,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -92,6 +94,7 @@ import kotlinx.coroutines.delay
 fun ProfileScreen() {
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val pullToRefreshState = rememberPullToRefreshState()
     val scrollState = rememberScrollState()
 
     val viewModel: ProfileViewModel = hiltViewModel()
@@ -185,6 +188,16 @@ fun ProfileScreen() {
         }
     }
 
+    if (pullToRefreshState.isRefreshing) {
+        LaunchedEffect(true) {
+            if (!isUpdateProfileUpdateLoading && !isUserDataLoading)
+                viewModel.getUserProfileData()
+        }
+    }
+    LaunchedEffect(isUserDataLoading, isUpdateProfileUpdateLoading) {
+        if (isUpdateProfileUpdateLoading || isUserDataLoading) pullToRefreshState.startRefresh() else pullToRefreshState.endRefresh()
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -249,85 +262,95 @@ fun ProfileScreen() {
         },
         modifier = Modifier
             .nestedScroll(scrollBehavior.nestedScrollConnection)
+            .nestedScroll(pullToRefreshState.nestedScrollConnection)
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxSize()
-                .verticalScroll(scrollState)
         ) {
-            ElevatedCard(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                ProfileItem(
-                    title = stringResource(R.string.email),
-                    subtitle = viewModel.email
-                )
-                listUserData.forEachIndexed { index, title ->
-                    ProfileItem(
-                        title = title,
-                        subtitle = when (index) {
-                            0 -> viewModel.userName
-                            1 -> {
-                                val userDisease = userMedicalHistory.joinToString {
-                                    it.disease?.diseaseName ?: ""
-                                }
-                                userDisease.ifEmpty { stringResource(R.string.nothing) }
-                            }
-
-                            else -> {
-                                val allergies = userAllergies.joinToString {
-                                    it.fruits?.fruitName ?: ""
-                                }
-                                allergies.ifEmpty { stringResource(R.string.nothing) }
-                            }
-                        },
-                        isLoading = isUserDataLoading,
-                        onClick = {
-                            if (!isUserDataLoading) {
-                                when (index) {
-                                    0 -> isOnEdit = 0 // TODO
-                                    1 -> viewModel.getDiseaseList(context)
-                                    else -> viewModel.getFruitList(context)
-                                }
-                                isOnEdit = index
-                            }
-                        }
-                    )
-                }
-            }
-            TextButton(
-                onClick = {
-                    if (!viewModel.isForgetPassLoading)
-                        confirmChangePasswordDialog = true
-                },
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            ) {
-                if (viewModel.isForgetPassLoading) {
-                    CircularProgressIndicator()
-                } else {
-                    Text(text = stringResource(R.string.change_password))
-                }
-            }
-            Button(
-                onClick = { confirmLogoutDialog = true },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error,
-                    contentColor = MaterialTheme.colorScheme.onError
-                ),
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
             ) {
-                Text(text = stringResource(R.string.logout))
+                ElevatedCard(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    ProfileItem(
+                        title = stringResource(R.string.email),
+                        subtitle = viewModel.email
+                    )
+                    listUserData.forEachIndexed { index, title ->
+                        ProfileItem(
+                            title = title,
+                            subtitle = when (index) {
+                                0 -> viewModel.userName
+                                1 -> {
+                                    val userDisease = userMedicalHistory.joinToString {
+                                        it.disease?.diseaseName ?: ""
+                                    }
+                                    userDisease.ifEmpty { stringResource(R.string.nothing) }
+                                }
+
+                                else -> {
+                                    val allergies = userAllergies.joinToString {
+                                        it.fruits?.fruitName ?: ""
+                                    }
+                                    allergies.ifEmpty { stringResource(R.string.nothing) }
+                                }
+                            },
+                            isLoading = isUserDataLoading,
+                            onClick = {
+                                if (!isUserDataLoading) {
+                                    when (index) {
+                                        0 -> isOnEdit = 0 // TODO
+                                        1 -> viewModel.getDiseaseList(context)
+                                        else -> viewModel.getFruitList(context)
+                                    }
+                                    isOnEdit = index
+                                }
+                            }
+                        )
+                    }
+                }
+                TextButton(
+                    onClick = {
+                        if (!viewModel.isForgetPassLoading)
+                            confirmChangePasswordDialog = true
+                    },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    if (viewModel.isForgetPassLoading) {
+                        CircularProgressIndicator()
+                    } else {
+                        Text(text = stringResource(R.string.change_password))
+                    }
+                }
+                Button(
+                    onClick = { confirmLogoutDialog = true },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(text = stringResource(R.string.logout))
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                Text(
+                    text = "${stringResource(R.string.app_name)} v.${BuildConfig.VERSION_NAME}",
+                    textAlign = TextAlign.Center,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Light,
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
-            Spacer(modifier = Modifier.weight(1f))
-            Text(
-                text = "${stringResource(R.string.app_name)} v.${BuildConfig.VERSION_NAME}",
-                textAlign = TextAlign.Center,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Light,
-                modifier = Modifier.fillMaxWidth()
+            PullToRefreshContainer(
+                state = pullToRefreshState,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
             )
         }
 

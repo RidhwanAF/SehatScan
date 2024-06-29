@@ -27,7 +27,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -60,6 +63,7 @@ fun HistoryListScreen(
     onItemClicked: (Drink) -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val pullToRefreshState = rememberPullToRefreshState()
 
     // User Input
     var sortByLatest by rememberSaveable {
@@ -83,6 +87,16 @@ fun HistoryListScreen(
     // UI State
     val isHistoryLoading by viewModel.isHistoryLoading.collectAsStateWithLifecycle()
     val historyErrorMessage by viewModel.historyErrorMessage.collectAsStateWithLifecycle()
+
+    if (pullToRefreshState.isRefreshing) {
+        LaunchedEffect(true) {
+            if (!isHistoryLoading)
+                viewModel.getDrinkHistory()
+        }
+    }
+    LaunchedEffect(isHistoryLoading) {
+        if (isHistoryLoading) pullToRefreshState.startRefresh() else pullToRefreshState.endRefresh()
+    }
 
     Scaffold(
         topBar = {
@@ -119,73 +133,82 @@ fun HistoryListScreen(
                 scrollBehavior = scrollBehavior
             )
         },
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
+        modifier = Modifier
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
+            .nestedScroll(pullToRefreshState.nestedScrollConnection)
     ) { innerPadding ->
-        LazyColumn(
-            contentPadding = PaddingValues(
-                top = innerPadding.calculateTopPadding(),
-                bottom = innerPadding.calculateBottomPadding(),
-                start = 16.dp,
-                end = 16.dp
-            ),
-            modifier = Modifier
-                .fillMaxSize()
+        Box(
+            modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
         ) {
-            if (isHistoryLoading) {
-                items(3) {
-                    ItemShimmerLoading()
-                }
-            } else {
-                if (sortedDates.isNotEmpty()) {
-                    sortedDates.forEach { date ->
-                        stickyHeader {
-                            Text(
-                                text = if (date != null) formatDate(date) else "",
-                                color = MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(vertical = 8.dp, horizontal = 16.dp)
-                            )
-                        }
-                        items(historyGroupByDate[date] ?: emptyList()) { historyItem ->
-                            historyItem.drinks?.forEach { drink ->
-                                HistoryListItem(
-                                    item = drink,
-                                ) {
-                                    onItemClicked(it)
+            LazyColumn(
+                contentPadding = PaddingValues(
+                    bottom = innerPadding.calculateBottomPadding(),
+                    start = 16.dp,
+                    end = 16.dp
+                ),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                if (isHistoryLoading) {
+                    items(3) {
+                        ItemShimmerLoading()
+                    }
+                } else {
+                    if (sortedDates.isNotEmpty()) {
+                        sortedDates.forEach { date ->
+                            stickyHeader {
+                                Text(
+                                    text = if (date != null) formatDate(date) else "",
+                                    color = MaterialTheme.colorScheme.primary,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 8.dp, horizontal = 16.dp)
+                                )
+                            }
+                            items(historyGroupByDate[date] ?: emptyList()) { historyItem ->
+                                historyItem.drinks?.forEach { drink ->
+                                    HistoryListItem(
+                                        item = drink,
+                                    ) {
+                                        onItemClicked(it)
+                                    }
                                 }
                             }
                         }
-                    }
-                } else {
-                    item {
-                        Column(
-                            verticalArrangement = Arrangement.spacedBy(8.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Text(
-                                text = if (historyErrorMessage != null) historyErrorMessage
-                                    ?: "" else stringResource(R.string.no_favorite_data),
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp)
-                            )
-                            IconButton(
-                                onClick = {
-                                    viewModel.getDrinkHistory()
-                                }
+                    } else {
+                        item {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Refresh,
-                                    contentDescription = stringResource(R.string.refresh)
+                                Text(
+                                    text = if (historyErrorMessage != null) historyErrorMessage
+                                        ?: "" else stringResource(R.string.no_favorite_data),
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
                                 )
+                                IconButton(
+                                    onClick = {
+                                        viewModel.getDrinkHistory()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Refresh,
+                                        contentDescription = stringResource(R.string.refresh)
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
+            PullToRefreshContainer(
+                state = pullToRefreshState,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+            )
         }
     }
 }

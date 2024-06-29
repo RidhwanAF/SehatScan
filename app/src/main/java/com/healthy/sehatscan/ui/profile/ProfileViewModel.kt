@@ -132,7 +132,7 @@ class ProfileViewModel @Inject constructor(
     }
 
     // Api Request
-    private fun getUserProfileData() {
+    fun getUserProfileData() {
         viewModelScope.launch(Dispatchers.IO) {
             userRepo.getUserProfileData()
         }
