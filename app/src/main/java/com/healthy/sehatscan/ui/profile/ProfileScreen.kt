@@ -261,17 +261,18 @@ fun ProfileScreen() {
             )
         },
         modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
             .nestedScroll(pullToRefreshState.nestedScrollConnection)
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         Box(
             modifier = Modifier
-                .padding(innerPadding)
+                .padding(top = innerPadding.calculateTopPadding())
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(scrollState)
+                    .padding(bottom = innerPadding.calculateBottomPadding())
             ) {
                 ElevatedCard(
                     modifier = Modifier.padding(16.dp)

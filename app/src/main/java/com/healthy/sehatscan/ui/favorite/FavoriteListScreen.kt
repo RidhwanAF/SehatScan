@@ -103,8 +103,8 @@ fun FavoriteListScreen(
             )
         },
         modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
             .nestedScroll(pullToRefreshState.nestedScrollConnection)
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         Box(
             modifier = Modifier.padding(top = innerPadding.calculateTopPadding())
