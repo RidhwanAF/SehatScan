@@ -21,8 +21,6 @@
 #-renamesourcefileattribute SourceFile
 
 # Gson
--keep class com.healthy.sehatscan.classification.** { *; }
--keep class com.healthy.sehatscan.appsetting.** { *; }
 -keep class com.healthy.sehatscan.data.** { *; }
 
 # Gson uses generic type information stored in a class file when working with

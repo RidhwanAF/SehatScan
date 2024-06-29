@@ -34,9 +34,10 @@ fun HistoryScreen() {
             }
         },
         detailPane = {
-            val content = navigator.currentDestination?.content
-            AnimatedPane {
-                HistoryDetailScreen(content, viewModel)
+            navigator.currentDestination?.content?.let {
+                AnimatedPane {
+                    HistoryDetailScreen(it, navigator, viewModel)
+                }
             }
         }
     )

@@ -127,6 +127,9 @@ fun FavoriteDetailScreen(
                         fontSize = 20.sp
                     )
                     Text(text = favoriteData.description ?: "")
+                    favoriteData.ingredients?.forEach {
+                        Text(text = it.fruitName ?: "")
+                    }
                 }
             }
         } else {

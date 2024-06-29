@@ -60,6 +60,7 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -163,7 +164,7 @@ fun HomeScreen(
                         fontSize = 24.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
+//                        modifier = Modifier
 //                                .sharedElement(
 //                                    state = rememberSharedContentState(key = "menu-scan-title-fab"),
 //                                    animatedVisibilityScope = animatedContentScope
