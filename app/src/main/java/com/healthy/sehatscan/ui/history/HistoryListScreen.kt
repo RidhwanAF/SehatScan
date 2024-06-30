@@ -155,22 +155,26 @@ fun HistoryListScreen(
                 } else {
                     if (sortedDates.isNotEmpty()) {
                         sortedDates.forEach { date ->
-                            stickyHeader {
-                                Text(
-                                    text = if (date != null) formatDate(date) else "",
-                                    color = MaterialTheme.colorScheme.primary,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 8.dp, horizontal = 16.dp)
-                                )
+                            date?.let {
+                                stickyHeader {
+                                    Text(
+                                        text = formatDate(date),
+                                        color = MaterialTheme.colorScheme.primary,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(vertical = 8.dp, horizontal = 16.dp)
+                                    )
+                                }
                             }
                             items(historyGroupByDate[date] ?: emptyList()) { historyItem ->
                                 historyItem.drinks?.forEach { drink ->
                                     HistoryListItem(
                                         item = drink,
                                     ) {
-                                        onItemClicked(it)
+                                        if (it != null) {
+                                            onItemClicked(it)
+                                        }
                                     }
                                 }
                             }
@@ -216,64 +220,66 @@ fun HistoryListScreen(
 @Composable
 fun HistoryListItem(
     modifier: Modifier = Modifier,
-    item: Drink,
-    onItemClicked: (Drink) -> Unit
+    item: Drink?,
+    onItemClicked: (Drink?) -> Unit
 ) {
-    val ingredientList = item.ingredients?.joinToString(", ") { it.fruitName ?: "" } ?: ""
+    item?.let {
+        val ingredientList = item.ingredients?.joinToString(", ") { it.fruitName ?: "" } ?: ""
 
-    Card(
-        onClick = { onItemClicked(item) },
-        modifier = Modifier.padding(vertical = 8.dp)
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = modifier
-                .fillMaxWidth()
-                .height(150.dp)
+        Card(
+            onClick = { onItemClicked(item) },
+            modifier = Modifier.padding(vertical = 8.dp)
         ) {
-            SubcomposeAsyncImage(
-                model = "https://thumb.photo-ac.com/13/130ecf0d1b3cbb04e38c509600e5f289_t.jpeg",
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                loading = {
-                    Box(modifier = Modifier.shimmer()) {
-                        Box(
-                            modifier = Modifier
-                                .background(MaterialTheme.colorScheme.onBackground)
-                                .fillMaxHeight()
-                                .aspectRatio(1f)
-                        )
-                    }
-                },
-                error = {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_broken_image),
-                        contentDescription = stringResource(
-                            R.string.failed_to_load_image
-                        ),
-                        modifier = Modifier.align(Alignment.Center)
-                    )
-                },
-                clipToBounds = true,
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .aspectRatio(1f)
-            )
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 16.dp)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = modifier
+                    .fillMaxWidth()
+                    .height(150.dp)
             ) {
-                Text(
-                    text = item.drinkName ?: "",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                SubcomposeAsyncImage(
+                    model = "https://thumb.photo-ac.com/13/130ecf0d1b3cbb04e38c509600e5f289_t.jpeg",
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    loading = {
+                        Box(modifier = Modifier.shimmer()) {
+                            Box(
+                                modifier = Modifier
+                                    .background(MaterialTheme.colorScheme.onBackground)
+                                    .fillMaxHeight()
+                                    .aspectRatio(1f)
+                            )
+                        }
+                    },
+                    error = {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_broken_image),
+                            contentDescription = stringResource(
+                                R.string.failed_to_load_image
+                            ),
+                            modifier = Modifier.align(Alignment.Center)
+                        )
+                    },
+                    clipToBounds = true,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .aspectRatio(1f)
                 )
-                Text(text = ingredientList, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 16.dp)
+                ) {
+                    Text(
+                        text = item.drinkName ?: "",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(text = ingredientList, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
             }
         }
     }
