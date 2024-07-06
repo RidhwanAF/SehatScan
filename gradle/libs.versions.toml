@@ -1,17 +1,17 @@
 [versions]
 adaptive = "1.0.0-beta04"
-agp = "8.5.0-beta02"
+agp = "8.5.0"
 assistedInjectProcessor = "0.5.2"
 cameraCore = "1.3.4"
 cameraCamera2 = "1.3.4"
 converterGson = "2.9.0"
-kotlin = "1.9.23"
+kotlin = "2.0.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
 serialization = "1.6.3"
-lifecycleRuntimeKtx = "2.8.2"
+lifecycleRuntimeKtx = "2.8.3"
 activityCompose = "1.9.0"
 composeBom = "2024.06.00"
 composeAnimation="1.7.0-beta04"
@@ -20,7 +20,7 @@ composeShimmer = "1.2.0"
 coreSplashscreen = "1.0.1"
 datastorePreferences = "1.1.1"
 gson = "2.10.1"
-ksp = "1.9.10-1.0.13"
+ksp = "2.0.0-1.0.21"
 daggerHilt = "2.49"
 hiltNavigation = "1.2.0"
 loggingInterceptor = "4.12.0"
@@ -78,8 +78,8 @@ tensorflow-lite-task-vision = { module = "org.tensorflow:tensorflow-lite-task-vi
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 googleDevtoolsKsp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 googleDaggerHiltAndroid = { id = "com.google.dagger.hilt.android", version.ref = "daggerHilt" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-

@@ -153,7 +153,6 @@ fun HomeScreen(
         }
     }
 
-//    with(sharedTransitionScope) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
@@ -163,12 +162,7 @@ fun HomeScreen(
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-//                        modifier = Modifier
-//                                .sharedElement(
-//                                    state = rememberSharedContentState(key = "menu-scan-title-fab"),
-//                                    animatedVisibilityScope = animatedContentScope
-//                                )
+                        overflow = TextOverflow.Ellipsis
                     )
                 },
                 scrollBehavior = scrollBehavior
@@ -176,52 +170,49 @@ fun HomeScreen(
         },
         floatingActionButtonPosition = FabPosition.Center,
         floatingActionButton = {
-            Box(
-                modifier = Modifier
-//                        .sharedBounds(
-//                            sharedContentState = rememberSharedContentState(key = "menu-scan-fab"),
-//                            animatedVisibilityScope = animatedContentScope,
-//                            resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds(ContentScale.FillBounds),
-//                            placeHolderSize = SharedTransitionScope.PlaceHolderSize.animatedSize
-//                        )
-                    .clickable(
-                        interactionSource = mutableInteractionSource.value,
-                        indication = null
-                    ) {
-                        permissionLauncher.launch(Manifest.permission.CAMERA)
-                    }
-                    .shadow(2.dp, RoundedCornerShape(16.dp), clip = true)
-                    .drawWithContent {
-                        rotate(fabColorRotationAnimation) {
-                            drawCircle(
-                                brush = fabColor,
-                                radius = size.width,
-                                blendMode = BlendMode.SrcIn,
-                            )
+            with(sharedTransitionScope) {
+                Box(
+                    modifier = Modifier
+                        .sharedBounds(
+                            sharedContentState = rememberSharedContentState(key = "menu-scan-fab"),
+                            animatedVisibilityScope = animatedContentScope,
+                            resizeMode = SharedTransitionScope.ResizeMode.ScaleToBounds(ContentScale.FillBounds),
+                            placeHolderSize = SharedTransitionScope.PlaceHolderSize.animatedSize
+                        )
+                        .clickable(
+                            interactionSource = mutableInteractionSource.value,
+                            indication = null
+                        ) {
+                            permissionLauncher.launch(Manifest.permission.CAMERA)
                         }
-                        drawContent()
-                    }
-                    .padding(16.dp)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        .shadow(2.dp, RoundedCornerShape(16.dp), clip = true)
+                        .drawWithContent {
+                            rotate(fabColorRotationAnimation) {
+                                drawCircle(
+                                    brush = fabColor,
+                                    radius = size.width,
+                                    blendMode = BlendMode.SrcIn,
+                                )
+                            }
+                            drawContent()
+                        }
+                        .padding(16.dp)
                 ) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_camera_enhance),
-                        contentDescription = stringResource(R.string.start_scan),
-                        tint = MaterialTheme.colorScheme.surface,
-                        modifier = Modifier.Companion
-//                                .sharedElement(
-//                                    state = rememberSharedContentState(key = "menu-scan-icon-fab"),
-//                                    animatedVisibilityScope = animatedContentScope
-//                                )
-                    )
-                    Text(
-                        text = stringResource(R.string.start_scan),
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.surface
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_camera_enhance),
+                            contentDescription = stringResource(R.string.start_scan),
+                            tint = MaterialTheme.colorScheme.surface
+                        )
+                        Text(
+                            text = stringResource(R.string.start_scan),
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.surface
+                        )
+                    }
                 }
             }
         },
@@ -321,7 +312,6 @@ fun HomeScreen(
             }
         }
     }
-//    }
 }
 
 fun hasCameraPermission(context: Context) = ContextCompat.checkSelfPermission(

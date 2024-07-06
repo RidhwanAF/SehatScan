@@ -1,7 +1,5 @@
 package com.healthy.sehatscan.navigation
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.fadeIn
@@ -43,10 +41,6 @@ fun NavigationGraph(
         NavHost(
             navController = navController,
             startDestination = startDestination,
-            enterTransition = { EnterTransition.None },
-            exitTransition = { ExitTransition.None },
-            popEnterTransition = { EnterTransition.None },
-            popExitTransition = { ExitTransition.None },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(bottom = innerPadding.calculateBottomPadding())
@@ -81,9 +75,7 @@ fun NavigationGraph(
                     val viewModel = it.sharedViewModel<AuthViewModel>(navController)
                     ForgetPasswordScreen(
                         navController = navController,
-                        viewModel = viewModel,
-                        this@SharedTransitionLayout,
-                        this@composable
+                        viewModel = viewModel
                     )
                 }
                 composable(

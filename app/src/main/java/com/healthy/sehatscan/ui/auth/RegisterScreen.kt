@@ -110,7 +110,7 @@ fun RegisterScreen(
         }
     }
 
-//    with(sharedTransitionScope) {
+    with(sharedTransitionScope) {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
@@ -118,12 +118,7 @@ fun RegisterScreen(
                         Text(
                             stringResource(R.string.register).uppercase(),
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.Companion
-//                                .sharedBounds(
-//                                    sharedTransitionScope.rememberSharedContentState(key = "text-${R.string.register}"),
-//                                    animatedVisibilityScope = animatedContentScope,
-//                                )
+                            fontWeight = FontWeight.Bold
                         )
                     },
                     navigationIcon = {
@@ -283,7 +278,14 @@ fun RegisterScreen(
                     if (viewModel.isLoading) {
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
                     } else {
-                        Text(stringResource(R.string.register).uppercase())
+                        Text(
+                            text = stringResource(R.string.register).uppercase(),
+                            modifier = Modifier
+                                .sharedBounds(
+                                    sharedTransitionScope.rememberSharedContentState(key = "text-${R.string.register}"),
+                                    animatedVisibilityScope = animatedContentScope,
+                                )
+                        )
                     }
                 }
                 Spacer(modifier = Modifier.weight(1f))
@@ -294,7 +296,13 @@ fun RegisterScreen(
                     TextButton(
                         onClick = { navController.navigateUp() }
                     ) {
-                        Text(text = stringResource(R.string.login))
+                        Text(
+                            text = stringResource(R.string.login), modifier = Modifier
+                                .sharedBounds(
+                                    sharedTransitionScope.rememberSharedContentState(key = "text-${R.string.login}"),
+                                    animatedVisibilityScope = animatedContentScope,
+                                )
+                        )
                     }
                 }
             }
@@ -325,7 +333,7 @@ fun RegisterScreen(
                 )
             }
         }
-//    }
+    }
 }
 
 @Composable
@@ -361,31 +369,31 @@ fun AuthSuccessAlertDialog(message: String, onDismiss: () -> Unit, onClicked: ()
 
 @Composable
 fun AuthErrorAlertDialog(message: String, onDismiss: () -> Unit, onClicked: () -> Unit) {
-        AlertDialog(
-            onDismissRequest = {
-                onDismiss()
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onClicked()
-                    }
-                ) {
-                    Text(text = stringResource(R.string.close))
+    AlertDialog(
+        onDismissRequest = {
+            onDismiss()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onClicked()
                 }
-            },
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Warning,
-                    contentDescription = stringResource(R.string.failed),
-                    tint = MaterialTheme.colorScheme.error
-                )
-            },
-            title = {
-                Text(text = stringResource(R.string.failed))
-            },
-            text = {
-                Text(text = message)
+            ) {
+                Text(text = stringResource(R.string.close))
             }
-        )
+        },
+        icon = {
+            Icon(
+                imageVector = Icons.Default.Warning,
+                contentDescription = stringResource(R.string.failed),
+                tint = MaterialTheme.colorScheme.error
+            )
+        },
+        title = {
+            Text(text = stringResource(R.string.failed))
+        },
+        text = {
+            Text(text = message)
+        }
+    )
 }
