@@ -8,17 +8,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -106,7 +109,7 @@ fun DrinkListScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 if (viewModel.isDrinkLoading) {
-                    items(3) {
+                    items(5) {
                         ItemShimmerLoading()
                     }
                 } else {
@@ -161,90 +164,99 @@ fun DrinkRecommendItem(data: DrinkItem, onItemClicked: () -> Unit) {
     val painter =
         rememberAsyncImagePainter(model = "https://assets.clevelandclinic.org/transform/47cdb246-3c9d-4efb-8b3b-1e6b85567a16/Fruit-Juice-155376375-770x533-1_jpg") // TODO: Change Image Drink
 
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onItemClicked() }
-    ) {
-        Image(
-            painter = painter,
-            contentDescription = data.drinkName,
-            contentScale = ContentScale.Crop,
+    Card(modifier = Modifier.padding(vertical = 8.dp)) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
-                .size(100.dp)
-        )
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .weight(1f)
-                .padding(16.dp)
+                .fillMaxWidth()
+                .height(150.dp)
+                .clickable { onItemClicked() }
         ) {
-            Text(
-                text = data.drinkName ?: "",
-                fontWeight = FontWeight.Bold,
-                fontSize = 18.sp,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+            Image(
+                painter = painter,
+                contentDescription = data.drinkName,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .width(150.dp)
+                    .fillMaxHeight()
             )
-            Text(
-                text = data.description ?: "",
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                fontWeight = FontWeight.Light
-            )
+            Column(
+                verticalArrangement = Arrangement.SpaceAround,
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(1f)
+                    .padding(16.dp)
+            ) {
+                Text(
+                    text = data.drinkName ?: "",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 18.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = data.description ?: "",
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    fontWeight = FontWeight.Light
+                )
+            }
         }
     }
 }
 
 @Composable
 fun ItemShimmerLoading() {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp, horizontal = 16.dp)
-            .shimmer()
-    ) {
-        Box(
+    Card(modifier = Modifier.padding(vertical = 8.dp)) {
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier
-                .background(
-                    MaterialTheme.colorScheme.onBackground,
-                    RoundedCornerShape(8.dp)
-                )
-                .size(64.dp)
-        )
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .weight(1f)
+                .fillMaxWidth()
+                .height(150.dp)
+                .shimmer()
         ) {
             Box(
                 modifier = Modifier
-                    .background(
-                        MaterialTheme.colorScheme.onBackground,
-                        RoundedCornerShape(8.dp)
-                    )
-                    .fillMaxWidth()
-                    .height(20.dp)
+                    .background(MaterialTheme.colorScheme.onBackground)
+                    .size(150.dp)
             )
-            Box(
+            Column(
+                verticalArrangement = Arrangement.SpaceAround,
                 modifier = Modifier
-                    .background(
-                        MaterialTheme.colorScheme.onBackground,
-                        RoundedCornerShape(8.dp)
-                    )
-                    .fillMaxWidth(0.5f)
-                    .height(20.dp)
-            )
-        }
-        Box(
-            modifier = Modifier
-                .background(
-                    MaterialTheme.colorScheme.onBackground,
-                    RoundedCornerShape(8.dp)
+                    .padding(vertical = 16.dp)
+                    .fillMaxHeight()
+                    .weight(1f)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .background(
+                            MaterialTheme.colorScheme.onBackground,
+                            RoundedCornerShape(8.dp)
+                        )
+                        .fillMaxWidth(0.9f)
+                        .height(20.dp)
                 )
-                .size(32.dp)
-        )
+                Box(
+                    modifier = Modifier
+                        .background(
+                            MaterialTheme.colorScheme.onBackground,
+                            RoundedCornerShape(8.dp)
+                        )
+                        .fillMaxWidth(0.45f)
+                        .height(20.dp)
+                )
+                List(2) {
+                    Box(
+                        modifier = Modifier
+                            .background(
+                                MaterialTheme.colorScheme.onBackground,
+                                RoundedCornerShape(8.dp)
+                            )
+                            .fillMaxWidth(if (it == 0) 0.75f else 0.6f)
+                            .height(20.dp)
+                    )
+                }
+            }
+        }
     }
 }

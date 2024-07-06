@@ -37,6 +37,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -72,7 +74,8 @@ fun HistoryListScreen(
 
     // Data
     val historyList by viewModel.drinkHistoryList.collectAsStateWithLifecycle()
-    val historyGroupByDate = historyList.groupBy { it.createdAt?.substringBefore("T") }
+    val historyGroupByDate =
+        historyList.groupBy { it.createdAt?.substringBefore("T") }
     val sortedDates = if (sortByLatest) {
         historyGroupByDate.keys.sortedByDescending {
             LocalDate.parse(
@@ -149,7 +152,7 @@ fun HistoryListScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 if (isHistoryLoading) {
-                    items(3) {
+                    items(5) {
                         ItemShimmerLoading()
                     }
                 } else {
@@ -162,6 +165,15 @@ fun HistoryListScreen(
                                         color = MaterialTheme.colorScheme.primary,
                                         fontWeight = FontWeight.Bold,
                                         modifier = Modifier
+                                            .background(
+                                                brush = Brush.verticalGradient(
+                                                    listOf(
+                                                        MaterialTheme.colorScheme.background,
+                                                        MaterialTheme.colorScheme.background,
+                                                        Color.Transparent
+                                                    ),
+                                                )
+                                            )
                                             .fillMaxWidth()
                                             .padding(vertical = 8.dp, horizontal = 16.dp)
                                     )
@@ -226,20 +238,16 @@ fun HistoryListItem(
     item?.let {
         val ingredientList = item.ingredients?.joinToString(", ") { it.fruitName ?: "" } ?: ""
 
-        Card(
-            onClick = { onItemClicked(item) },
-            modifier = Modifier.padding(vertical = 8.dp)
-        ) {
+        Card(onClick = { onItemClicked(it) }, modifier = modifier.padding(vertical = 8.dp)) {
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = modifier
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
                     .fillMaxWidth()
                     .height(150.dp)
             ) {
                 SubcomposeAsyncImage(
-                    model = "https://thumb.photo-ac.com/13/130ecf0d1b3cbb04e38c509600e5f289_t.jpeg",
-                    contentDescription = null,
+                    model = "https://thumb.photo-ac.com/13/130ecf0d1b3cbb04e38c509600e5f289_t.jpeg", // TODO: Change Image
+                    contentDescription = item.drinkName,
                     contentScale = ContentScale.Crop,
                     loading = {
                         Box(modifier = Modifier.shimmer()) {
@@ -266,15 +274,16 @@ fun HistoryListItem(
                         .aspectRatio(1f)
                 )
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.SpaceAround,
                     modifier = Modifier
+                        .fillMaxHeight()
                         .weight(1f)
-                        .padding(end = 16.dp)
+                        .padding(horizontal = 16.dp)
                 ) {
                     Text(
-                        text = item.drinkName ?: "",
-                        fontSize = 20.sp,
+                        text = it.drinkName ?: "",
                         fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

@@ -118,7 +118,7 @@ fun FavoriteListScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 if (isFavoriteLoading) {
-                    items(3) {
+                    items(5) {
                         ItemShimmerLoading()
                     }
                 } else {
@@ -228,18 +228,17 @@ fun FavoriteListItem(
 ) {
     Card(
         onClick = { onItemClicked(item.favoriteId) },
-        modifier = Modifier.padding(vertical = 8.dp)
+        modifier = modifier.padding(vertical = 8.dp)
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = modifier
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
                 .fillMaxWidth()
                 .height(150.dp)
         ) {
             SubcomposeAsyncImage(
                 model = "https://thumb.photo-ac.com/13/130ecf0d1b3cbb04e38c509600e5f289_t.jpeg", // TODO: Change Image
-                contentDescription = null,
+                contentDescription = item.drink?.drinkName,
                 contentScale = ContentScale.Crop,
                 loading = {
                     Box(modifier = Modifier.shimmer()) {
