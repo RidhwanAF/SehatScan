@@ -139,7 +139,7 @@ fun HomeScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            navController.navigate(Route.ScreenRoute.ImageScan.name)
+            navController.navigate(Route.ScanRoute.Scan.name)
         } else {
             Toast.makeText(
                 context,

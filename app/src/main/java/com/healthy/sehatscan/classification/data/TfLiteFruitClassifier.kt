@@ -56,7 +56,7 @@ class TfLiteFruitClassifier(
         println(results.toString())
         return results?.flatMap { classifications ->
             classifications.categories.map { category ->
-                Classification(name = category.label, score = category.score)
+                Classification(image = bitmap, name = category.label, score = category.score)
             }
         }?.distinctBy { it.name } ?: emptyList()
     }

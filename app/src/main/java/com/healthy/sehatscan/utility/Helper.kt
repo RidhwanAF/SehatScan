@@ -4,7 +4,9 @@ import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Matrix
 import android.net.Uri
+import android.util.Base64
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -20,6 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import java.io.ByteArrayOutputStream
 import java.io.InputStream
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -69,6 +72,36 @@ fun uriToBitmap(context: Context, uri: Uri?): Bitmap? {
         val inputStream: InputStream? = contentResolver.openInputStream(uri)
         BitmapFactory.decodeStream(inputStream)
     } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+fun rotateBitmap(source: Bitmap?, angle: Float): Bitmap? {
+    val matrix = Matrix().apply { postRotate(angle) }
+    return if (source == null) null else Bitmap.createBitmap(
+        source,
+        0,
+        0,
+        source.width,
+        source.height,
+        matrix,
+        true
+    )
+}
+
+fun bitmapToString(bitmap: Bitmap): String {
+    val outputStream = ByteArrayOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+    val byteArray = outputStream.toByteArray()
+    return Base64.encodeToString(byteArray, Base64.DEFAULT)
+}
+
+fun stringToBitmap(encodedString: String): Bitmap? {
+    return try {
+        val decodedBytes = Base64.decode(encodedString, Base64.DEFAULT)
+        BitmapFactory.decodeByteArray(decodedBytes, 0, decodedBytes.size)
+    } catch (e: IllegalArgumentException) {
         e.printStackTrace()
         null
     }

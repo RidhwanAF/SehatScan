@@ -21,9 +21,18 @@ class Route {
         Profile
     }
 
-    enum class ScreenRoute {
+    enum class ScanRoute {
+        Scan, // Parent
         ImageScan,
+        ScanResult
     }
+
+    @Serializable
+    data class ImageViewer(
+        val image: String,
+        val label: String?,
+        val isImageBitmap: Boolean = false
+    )
 
     @Serializable
     data class Drink(

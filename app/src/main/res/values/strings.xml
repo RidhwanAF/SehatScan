@@ -87,4 +87,6 @@
     <string name="failed_to_get_drink_history">Gagal mendapatkan data histori minuman</string>
     <string name="sort">Urutkan</string>
     <string name="failed_to_update_profile">Gagal mengubah data profil</string>
+    <string name="fruit">Buah</string>
+    <string name="get_recommendation">Dapatkan Rekomendasi</string>
 </resources>

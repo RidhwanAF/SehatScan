@@ -18,6 +18,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
+import com.healthy.sehatscan.ui.ImageViewerScreen
 import com.healthy.sehatscan.ui.auth.AuthViewModel
 import com.healthy.sehatscan.ui.auth.ForgetPasswordScreen
 import com.healthy.sehatscan.ui.auth.LoginScreen
@@ -25,8 +26,10 @@ import com.healthy.sehatscan.ui.auth.RegisterScreen
 import com.healthy.sehatscan.ui.favorite.FavoriteScreen
 import com.healthy.sehatscan.ui.history.HistoryScreen
 import com.healthy.sehatscan.ui.home.HomeScreen
-import com.healthy.sehatscan.ui.home.ScanScreen
 import com.healthy.sehatscan.ui.home.drink.DrinksScreen
+import com.healthy.sehatscan.ui.home.scan.ScanResultScreen
+import com.healthy.sehatscan.ui.home.scan.ScanScreen
+import com.healthy.sehatscan.ui.home.scan.ScanViewModel
 import com.healthy.sehatscan.ui.profile.ProfileScreen
 import com.healthy.sehatscan.utility.sharedViewModel
 
@@ -118,27 +121,69 @@ fun NavigationGraph(
             }
 
             // Other
-            composable(
-                route = Route.ScreenRoute.ImageScan.name,
-                enterTransition = { slideInVertically { it } },
-                exitTransition = { slideOutVertically { it } },
-                popEnterTransition = { slideInVertically { it } },
-                popExitTransition = { slideOutVertically { it } }
+            navigation(
+                route = Route.ScanRoute.Scan.name,
+                startDestination = Route.ScanRoute.ImageScan.name
             ) {
-                ScanScreen(
-                    navController = navController,
-                    this@SharedTransitionLayout,
-                    this@composable
-                )
+                composable(
+                    route = Route.ScanRoute.ImageScan.name,
+                    enterTransition = {
+                        fadeIn(initialAlpha = 0.85f) + scaleIn(initialScale = 0.85f)
+                    },
+                    exitTransition = { slideOutVertically { it } },
+                    popEnterTransition = {
+                        fadeIn(initialAlpha = 0.85f) + scaleIn(initialScale = 0.85f)
+                    },
+                    popExitTransition = { slideOutVertically { it } }
+                ) {
+                    val viewModel = it.sharedViewModel<ScanViewModel>(navController)
+                    ScanScreen(
+                        navController = navController,
+                        viewModel,
+                        this@SharedTransitionLayout,
+                        this@composable
+                    )
+                }
+                composable(
+                    route = Route.ScanRoute.ScanResult.name,
+                    enterTransition = { fadeIn(initialAlpha = 0.5f) },
+                    exitTransition = { fadeOut() },
+                    popEnterTransition = { fadeIn(initialAlpha = 0.5f) },
+                    popExitTransition = { fadeOut() }
+                ) {
+                    val viewModel = it.sharedViewModel<ScanViewModel>(navController)
+                    ScanResultScreen(
+                        navController = navController,
+                        viewModel = viewModel,
+                        this@SharedTransitionLayout,
+                        this@composable
+                    )
+                }
             }
+
             composable<Route.Drink>(
                 enterTransition = { slideInVertically { it } },
                 exitTransition = { slideOutVertically { it } },
                 popEnterTransition = { slideInVertically { it } },
-                popExitTransition = { slideOutVertically { it } }
+                popExitTransition = { slideOutVertically { it } },
             ) {
                 val args = it.toRoute<Route.Drink>()
                 DrinksScreen(navController = navController, args.fruit)
+            }
+
+            composable<Route.ImageViewer>(
+                enterTransition = { fadeIn(initialAlpha = 0.5f) },
+                exitTransition = { fadeOut() },
+                popEnterTransition = { fadeIn(initialAlpha = 0.5f) },
+                popExitTransition = { fadeOut() }
+            ) {
+                val args = it.toRoute<Route.ImageViewer>()
+                ImageViewerScreen(
+                    navController = navController,
+                    data = args,
+                    this@SharedTransitionLayout,
+                    this@composable
+                )
             }
         }
     }

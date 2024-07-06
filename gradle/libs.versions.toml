@@ -4,6 +4,7 @@ agp = "8.5.0"
 assistedInjectProcessor = "0.5.2"
 cameraCore = "1.3.4"
 cameraCamera2 = "1.3.4"
+composeZoom = "0.5.0"
 converterGson = "2.9.0"
 kotlin = "2.0.0"
 coreKtx = "1.13.1"
@@ -44,6 +45,7 @@ androidx-camera-video = { module = "androidx.camera:camera-video", version.ref =
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 assisted-inject-processor = { module = "com.squareup.inject:assisted-inject-processor", version.ref = "assistedInjectProcessor" }
+compose-zoom = { module = "com.github.SmartToolFactory:Compose-Zoom", version.ref = "composeZoom" }
 converter-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "converterGson" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

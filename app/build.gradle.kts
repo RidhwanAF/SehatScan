@@ -83,6 +83,7 @@ dependencies {
     ksp(libs.androidx.hilt.compiler)
     implementation(libs.google.hilt.android)
     ksp(libs.google.hilt.compiler)
+    implementation(libs.compose.zoom)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.hilt.navigation)
     implementation(libs.androidx.compose.animation)

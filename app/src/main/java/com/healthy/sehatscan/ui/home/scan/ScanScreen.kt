@@ -1,9 +1,10 @@
-package com.healthy.sehatscan.ui.home
+package com.healthy.sehatscan.ui.home.scan
 
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.pm.ActivityInfo
+import android.util.Log
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
 import androidx.compose.animation.AnimatedContentScope
@@ -69,6 +70,7 @@ import com.healthy.sehatscan.classification.domain.Classification
 import com.healthy.sehatscan.classification.presentation.CameraPreview
 import com.healthy.sehatscan.classification.presentation.FruitImageAnalyzer
 import com.healthy.sehatscan.navigation.Route
+import com.healthy.sehatscan.ui.home.hasCameraPermission
 import com.healthy.sehatscan.utility.dashedBorder
 
 @SuppressLint("SourceLockedOrientationActivity")
@@ -79,6 +81,7 @@ import com.healthy.sehatscan.utility.dashedBorder
 @Composable
 fun ScanScreen(
     navController: NavHostController,
+    viewModel: ScanViewModel,
     sharedTransitionScope: SharedTransitionScope,
     animatedContentScope: AnimatedContentScope
 ) {
@@ -122,7 +125,7 @@ fun ScanScreen(
         FruitImageAnalyzer(
             classifier = classifier,
             onResults = { results ->
-                println(results)
+                Log.i("ScanScreen", results.toString())
                 classifications = results.sortedByDescending { it.score }
             }
         )
@@ -238,8 +241,9 @@ fun ScanScreen(
                     }
                     items(classifications) { item ->
                         ElevatedSuggestionChip(
-                            onClick = {
-                                navController.navigate(Route.Drink(item.name)) {
+                            onClick = { // TODO : Req API fruit
+                                viewModel.onScanResultChange(item)
+                                navController.navigate(Route.ScanRoute.ScanResult.name) {
                                     launchSingleTop = true
                                 }
                             },
