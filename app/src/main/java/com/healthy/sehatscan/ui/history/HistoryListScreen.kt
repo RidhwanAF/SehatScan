@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -51,7 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.SubcomposeAsyncImage
 import com.healthy.sehatscan.R
-import com.healthy.sehatscan.data.remote.drink.response.Drink
+import com.healthy.sehatscan.data.remote.drink.response.HistoryDrink.DrinkItem
 import com.healthy.sehatscan.ui.home.drink.ItemShimmerLoading
 import com.healthy.sehatscan.utility.formatDate
 import com.valentinilk.shimmer.shimmer
@@ -62,7 +63,7 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun HistoryListScreen(
     viewModel: HistoryViewModel,
-    onItemClicked: (Drink) -> Unit
+    onItemClicked: (DrinkItem) -> Unit
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val pullToRefreshState = rememberPullToRefreshState()
@@ -232,12 +233,10 @@ fun HistoryListScreen(
 @Composable
 fun HistoryListItem(
     modifier: Modifier = Modifier,
-    item: Drink?,
-    onItemClicked: (Drink?) -> Unit
+    item: DrinkItem?,
+    onItemClicked: (DrinkItem?) -> Unit
 ) {
     item?.let {
-        val ingredientList = item.ingredients?.joinToString(", ") { it.fruitName ?: "" } ?: ""
-
         Card(onClick = { onItemClicked(it) }, modifier = modifier.padding(vertical = 8.dp)) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -247,7 +246,7 @@ fun HistoryListItem(
             ) {
                 SubcomposeAsyncImage(
                     model = "https://thumb.photo-ac.com/13/130ecf0d1b3cbb04e38c509600e5f289_t.jpeg", // TODO: Change Image
-                    contentDescription = item.drinkName,
+                    contentDescription = item.drink?.drinkName,
                     contentScale = ContentScale.Crop,
                     loading = {
                         Box(modifier = Modifier.shimmer()) {
@@ -274,20 +273,25 @@ fun HistoryListItem(
                         .aspectRatio(1f)
                 )
                 Column(
-                    verticalArrangement = Arrangement.SpaceAround,
+                    verticalArrangement = Arrangement.Top,
                     modifier = Modifier
                         .fillMaxHeight()
                         .weight(1f)
-                        .padding(horizontal = 16.dp)
+                        .padding(16.dp)
                 ) {
                     Text(
-                        text = it.drinkName ?: "",
+                        text = it.drink?.drinkName ?: "",
                         fontWeight = FontWeight.Bold,
                         fontSize = 18.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Text(text = ingredientList, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = it.drink?.description ?: "",
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
                 }
             }
         }

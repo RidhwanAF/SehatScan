@@ -6,7 +6,7 @@ import com.google.gson.JsonObject
 import com.healthy.sehatscan.R
 import com.healthy.sehatscan.data.local.auth.AuthDataStore
 import com.healthy.sehatscan.data.remote.ApiService
-import com.healthy.sehatscan.data.remote.drink.response.HistoryDataItem
+import com.healthy.sehatscan.data.remote.drink.response.HistoryDrink
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,8 +21,9 @@ class DrinkHistoryRepository @Inject constructor(
     private val authDataStore: AuthDataStore
 ) {
     // List
-    private var _drinkHistoryList = MutableStateFlow<List<HistoryDataItem>>(emptyList())
-    val drinkHistoryList: StateFlow<List<HistoryDataItem>> = _drinkHistoryList
+    private var _drinkHistoryList =
+        MutableStateFlow<List<HistoryDrink.HistoryDataItem>>(emptyList())
+    val drinkHistoryList: StateFlow<List<HistoryDrink.HistoryDataItem>> = _drinkHistoryList
 
     private var _isHistoryLoading = MutableStateFlow(false)
     val isHistoryLoading: StateFlow<Boolean> = _isHistoryLoading

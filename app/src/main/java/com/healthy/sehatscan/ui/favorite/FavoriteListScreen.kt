@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -231,7 +232,7 @@ fun FavoriteListItem(
         modifier = modifier.padding(vertical = 8.dp)
     ) {
         Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(150.dp)
@@ -269,11 +270,14 @@ fun FavoriteListItem(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .weight(1f)
+                    .fillMaxHeight()
                     .padding(top = 16.dp, bottom = 16.dp, end = 16.dp)
             ) {
                 Column(
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.weight(1f)
+                    verticalArrangement = Arrangement.Top,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .weight(1f)
                 ) {
                     Text(
                         text = item.drink?.drinkName ?: "-",
@@ -282,8 +286,8 @@ fun FavoriteListItem(
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
-                    Text(text = item.drink?.ingredients?.joinToString(", ") { it.fruitName ?: "" }
-                        ?: "", maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = item.drink?.description ?: "", maxLines = 2, overflow = TextOverflow.Ellipsis)
                 }
                 IconButton(onClick = { onRemoved(item.drink?.drinkId) }) {
                     Icon(

@@ -1,9 +1,14 @@
 package com.healthy.sehatscan.ui.favorite
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -43,16 +48,24 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.healthy.sehatscan.R
 import com.healthy.sehatscan.data.remote.drink.response.FavoriteDrink
+import com.healthy.sehatscan.navigation.Route
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class,
+    ExperimentalSharedTransitionApi::class
+)
 @Composable
 fun FavoriteDetailScreen(
     id: Int,
+    navController: NavHostController,
     navigator: ThreePaneScaffoldNavigator<Int>,
-    viewModel: FavoriteViewModel
+    viewModel: FavoriteViewModel,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope
 ) {
     val context = LocalContext.current
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
@@ -61,9 +74,6 @@ fun FavoriteDetailScreen(
     // Data
     val favoriteList by viewModel.favoriteDrink.collectAsStateWithLifecycle()
     val favoriteData = favoriteList.find { it.favoriteId == id }?.drink
-
-    val painter =
-        rememberAsyncImagePainter(model = "https://thumb.photo-ac.com/13/130ecf0d1b3cbb04e38c509600e5f289_t.jpeg") // TODO: Change Image Drink
 
     // Action
     var showRemoveFavoriteDialog by rememberSaveable {
@@ -103,6 +113,12 @@ fun FavoriteDetailScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         if (favoriteData != null) {
+
+            val urlImg =
+                "https://thumb.photo-ac.com/13/130ecf0d1b3cbb04e38c509600e5f289_t.jpeg" //TODO
+            val painter =
+                rememberAsyncImagePainter(model = urlImg) // TODO: Change Image Drink
+
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier
@@ -110,14 +126,31 @@ fun FavoriteDetailScreen(
                     .verticalScroll(scrollState)
                     .padding(innerPadding)
             ) {
-                Image(
-                    painter = painter,
-                    contentDescription = favoriteData.drinkName,
-                    contentScale = ContentScale.FillWidth,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp)
-                )
+                with(sharedTransitionScope) {
+                    Image(
+                        painter = painter,
+                        contentDescription = favoriteData.drinkName,
+                        contentScale = ContentScale.FillWidth,
+                        modifier = Modifier
+                            .sharedElement(
+                                state = rememberSharedContentState(key = "full-screen-image-${urlImg}"),
+                                animatedVisibilityScope = animatedContentScope,
+                                placeHolderSize = SharedTransitionScope.PlaceHolderSize.animatedSize
+                            )
+                            .fillMaxWidth()
+                            .height(250.dp)
+                            .clickable {
+                                navController.navigate(
+                                    Route.ImageViewer(
+                                        urlImg,
+                                        favoriteData.drinkName ?: "favorite",
+                                    )
+                                ) {
+                                    launchSingleTop = true
+                                }
+                            }
+                    )
+                }
                 Column(
                     modifier = Modifier.padding(horizontal = 16.dp)
                 ) {
@@ -126,9 +159,33 @@ fun FavoriteDetailScreen(
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     )
-                    Text(text = favoriteData.description ?: "")
-                    favoriteData.ingredients?.forEach {
-                        Text(text = it.fruitName ?: "")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    favoriteData.description?.let {
+                        Text(
+                            text = stringResource(R.string.description),
+                            fontWeight = FontWeight.Medium
+                        )
+                        Text(text = it)
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    if (favoriteData.ingredients?.isNotEmpty() == true) {
+                        Text(
+                            text = stringResource(R.string.ingredients),
+                            fontWeight = FontWeight.Medium
+                        )
+                        favoriteData.ingredients.forEach { ingredient ->
+                            Text(text = "- ${ingredient.fruitName ?: ""}")
+                            if (ingredient.nutrition?.isNotEmpty() == true) {
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = stringResource(R.string.nutrition),
+                                    fontWeight = FontWeight.Medium
+                                )
+                                ingredient.nutrition.forEach { nutrition ->
+                                    Text(text = "  - ${nutrition.nutritionName ?: ""}")
+                                }
+                            }
+                        }
                     }
                 }
             }

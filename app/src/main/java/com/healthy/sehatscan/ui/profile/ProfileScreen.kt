@@ -865,10 +865,6 @@ fun DiseaseItem(
     isChecked: Boolean,
     onItemClicked: () -> Unit
 ) {
-    val ingredients = data?.diseaseRestrictions?.map {
-        it.drink?.ingredients?.map { item -> item.fruitName }?.joinToString(", ")
-    }
-
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -880,6 +876,7 @@ fun DiseaseItem(
         Checkbox(checked = isChecked, onCheckedChange = { onItemClicked() })
         Column {
             Text(text = data?.diseaseName ?: "", fontWeight = FontWeight.Bold)
+            Text(text = data?.description ?: "", maxLines = 2, overflow = TextOverflow.Ellipsis)
             LazyRow(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -897,14 +894,21 @@ fun DiseaseItem(
                             .padding(horizontal = 4.dp)
                     )
                 }
-                itemsIndexed(ingredients ?: emptyList()) { index, item ->
-                    Text(text = item ?: "", fontWeight = FontWeight.Light)
-                    if (index != ingredients?.lastIndex) {
-                        Text(text = ", ", fontWeight = FontWeight.Light)
+                if (data?.diseaseRestrictions?.isNotEmpty() == true) {
+                    itemsIndexed(data.diseaseRestrictions) { index, item ->
+                        item.nutrition?.let { nutrition ->
+                            Text(
+                                text = if (index != data.diseaseRestrictions.lastIndex) {
+                                    "${nutrition.nutritionName ?: ""}, "
+                                } else {
+                                    nutrition.nutritionName ?: ""
+                                },
+                                fontWeight = FontWeight.Light
+                            )
+                        }
                     }
                 }
             }
-            Text(text = data?.description ?: "", maxLines = 2, overflow = TextOverflow.Ellipsis)
         }
     }
 }

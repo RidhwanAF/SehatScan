@@ -1,9 +1,14 @@
 package com.healthy.sehatscan.ui.history
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,12 +17,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.material3.adaptive.navigation.ThreePaneScaffoldNavigator
@@ -32,29 +37,34 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.healthy.sehatscan.R
-import com.healthy.sehatscan.data.remote.drink.response.Drink
+import com.healthy.sehatscan.data.remote.drink.response.HistoryDrink.DrinkItem
+import com.healthy.sehatscan.navigation.Route
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class,
+    ExperimentalSharedTransitionApi::class
+)
 @Composable
 fun HistoryDetailScreen(
-    drink: Drink?,
-    navigator: ThreePaneScaffoldNavigator<Drink>,
-    viewModel: HistoryViewModel
+    drink: DrinkItem?,
+    navController: NavHostController,
+    navigator: ThreePaneScaffoldNavigator<DrinkItem>,
+    viewModel: HistoryViewModel,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val scrollState = rememberScrollState()
 
-    val painter =
-        rememberAsyncImagePainter(model = "https://thumb.photo-ac.com/13/130ecf0d1b3cbb04e38c509600e5f289_t.jpeg") // TODO: Change Image Drink
-
     Scaffold(
         topBar = {
-            TopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = drink?.drinkName ?: "",
+                        text = drink?.drink?.drinkName ?: "",
                         fontWeight = FontWeight.Bold,
                         fontSize = 24.sp,
                         maxLines = 1,
@@ -77,32 +87,80 @@ fun HistoryDetailScreen(
             .nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         if (drink != null) {
-            Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(innerPadding)
-            ) {
-                Image(
-                    painter = painter,
-                    contentDescription = drink.drinkName,
-                    contentScale = ContentScale.FillWidth,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp)
-                )
+            drink.drink.let {
+                val urlImg =
+                    "https://thumb.photo-ac.com/13/130ecf0d1b3cbb04e38c509600e5f289_t.jpeg" //TODO
+                val painter =
+                    rememberAsyncImagePainter(model = urlImg) // TODO: Change Image Drink
+
                 Column(
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                        .padding(innerPadding)
                 ) {
-                    Text(
-                        text = drink.drinkName ?: "",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
-                    )
-                    Text(text = drink.description ?: "")
-                    drink.ingredients?.forEach {
-                        Text(text = it.fruitName ?: "")
+                    with(sharedTransitionScope) {
+                        Image(
+                            painter = painter,
+                            contentDescription = it?.drinkName,
+                            contentScale = ContentScale.FillWidth,
+                            modifier = Modifier
+                                .sharedElement(
+                                    state = rememberSharedContentState(key = "full-screen-image-${urlImg}"),
+                                    animatedVisibilityScope = animatedContentScope,
+                                    placeHolderSize = SharedTransitionScope.PlaceHolderSize.animatedSize
+                                )
+                                .fillMaxWidth()
+                                .height(250.dp)
+                                .clickable {
+                                    navController.navigate(
+                                        Route.ImageViewer(
+                                            urlImg,
+                                            it?.drinkName ?: "history"
+                                        )
+                                    ) {
+                                        launchSingleTop = true
+                                    }
+                                }
+                        )
+                    }
+                    Column(
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    ) {
+                        Text(
+                            text = it?.drinkName ?: "",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 20.sp
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        it?.description?.let {
+                            Text(
+                                text = stringResource(R.string.description),
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(text = it)
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                        if (it?.ingredients?.isNotEmpty() == true) {
+                            Text(
+                                text = stringResource(R.string.ingredients),
+                                fontWeight = FontWeight.Medium
+                            )
+                            it.ingredients.forEach { ingredient ->
+                                Text(text = "- ${ingredient.fruitName ?: ""}")
+                                if (ingredient.listNutrition?.isNotEmpty() == true) {
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    Text(
+                                        text = stringResource(R.string.nutrition),
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                    ingredient.listNutrition.forEach { nutrition ->
+                                        Text(text = "  - ${nutrition.nutritionName ?: ""}")
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

@@ -111,10 +111,18 @@ fun NavigationGraph(
                 )
             }
             composable(route = Route.MainScreen.History.route) {
-                HistoryScreen()
+                HistoryScreen(
+                    navController,
+                    this@SharedTransitionLayout,
+                    this@composable
+                )
             }
             composable(route = Route.MainScreen.Favorite.route) {
-                FavoriteScreen()
+                FavoriteScreen(
+                    navController,
+                    this@SharedTransitionLayout,
+                    this@composable
+                )
             }
             composable(route = Route.MainScreen.Profile.route) {
                 ProfileScreen()

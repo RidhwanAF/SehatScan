@@ -1,6 +1,9 @@
 package com.healthy.sehatscan.ui.favorite
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -20,12 +23,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import com.healthy.sehatscan.R
 import com.healthy.sehatscan.utility.LoadingDialog
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
-fun FavoriteScreen() {
+fun FavoriteScreen(
+    navController: NavHostController,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope
+) {
     val navigator = rememberListDetailPaneScaffoldNavigator<Int>()
 
     BackHandler(navigator.canNavigateBack()) {
@@ -52,7 +60,14 @@ fun FavoriteScreen() {
             detailPane = {
                 navigator.currentDestination?.content?.let {
                     AnimatedPane {
-                        FavoriteDetailScreen(it, navigator, viewModel)
+                        FavoriteDetailScreen(
+                            it,
+                            navController,
+                            navigator,
+                            viewModel,
+                            sharedTransitionScope,
+                            animatedContentScope
+                        )
                     }
                 }
             }

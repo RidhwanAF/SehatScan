@@ -89,4 +89,7 @@
     <string name="failed_to_update_profile">Gagal mengubah data profil</string>
     <string name="fruit">Buah</string>
     <string name="get_recommendation">Dapatkan Rekomendasi</string>
+    <string name="ingredients">Bahan-bahan</string>
+    <string name="description">Deskripsi</string>
+    <string name="nutrition">Nutrisi</string>
 </resources>

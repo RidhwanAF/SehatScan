@@ -52,7 +52,7 @@ object AppModule {
     @Singleton
     fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit =
         Retrofit.Builder()
-            .baseUrl("https://health.osc-fr1.scalingo.io/")
+            .baseUrl("https://health-api.osc-fr1.scalingo.io/")
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
