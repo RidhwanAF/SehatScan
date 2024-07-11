@@ -18,7 +18,7 @@
     <string name="email_example">contoh: sehatscan@example.com</string>
     <string name="password_must_be_at_least_8_characters">Kata sandi minimal 8 karakter</string>
     <string name="password_doesn_t_match">Kata sandi tidak sama</string>
-    <string name="back">Back</string>
+    <string name="back">Kembali</string>
     <string name="send">Kirim</string>
     <string name="start_scan">Mulai Scan</string>
     <string name="scan_history">Riwayat Scan</string>
@@ -92,4 +92,5 @@
     <string name="ingredients">Bahan-bahan</string>
     <string name="description">Deskripsi</string>
     <string name="nutrition">Nutrisi</string>
+    <string name="try_again">Coba Lagi</string>
 </resources>

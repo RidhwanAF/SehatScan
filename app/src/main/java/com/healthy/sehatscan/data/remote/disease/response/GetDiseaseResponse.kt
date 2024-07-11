@@ -46,15 +46,3 @@ data class Nutrition(
     @field:SerializedName("nutrition_name")
     val nutritionName: String? = null
 )
-
-data class ResponseMetaData(
-    @field:SerializedName("code")
-    val code: Int? = null,
-
-    @field:SerializedName("status")
-    val status: String? = null,
-
-    @field:SerializedName("message")
-    val message: String? = null
-)
-

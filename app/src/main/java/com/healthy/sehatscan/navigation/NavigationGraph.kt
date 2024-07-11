@@ -176,7 +176,12 @@ fun NavigationGraph(
                 popExitTransition = { slideOutVertically { it } },
             ) {
                 val args = it.toRoute<Route.Drink>()
-                DrinksScreen(navController = navController, args.fruit)
+                DrinksScreen(
+                    navController = navController,
+                    args.fruit,
+                    this@SharedTransitionLayout,
+                    this@composable
+                )
             }
 
             composable<Route.ImageViewer>(

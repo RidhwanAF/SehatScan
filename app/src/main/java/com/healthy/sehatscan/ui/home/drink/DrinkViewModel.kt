@@ -48,6 +48,8 @@ class DrinkViewModel @Inject constructor(
     private val _addRemoveErrorMessage = MutableStateFlow<String?>(null)
     val addRemoveErrorMessage: StateFlow<String?> = _addRemoveErrorMessage
 
+
+    // Api Call
     fun getDrinkRecommendation(
         context: Context,
         data: DrinkRecommendReqBody
@@ -79,6 +81,8 @@ class DrinkViewModel @Inject constructor(
                     }
                 }
             } catch (e: Exception) {
+                drinkListErrorMessage =
+                    context.getString(R.string.failed_to_get_fruit_data)
                 isDrinkLoading = false
                 e.printStackTrace()
             }

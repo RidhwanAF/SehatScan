@@ -241,8 +241,9 @@ fun ScanScreen(
                     }
                     items(classifications) { item ->
                         ElevatedSuggestionChip(
-                            onClick = { // TODO : Req API fruit
+                            onClick = {
                                 viewModel.onScanResultChange(item)
+                                viewModel.getFruitDetail(context, item.name)
                                 navController.navigate(Route.ScanRoute.ScanResult.name) {
                                     launchSingleTop = true
                                 }

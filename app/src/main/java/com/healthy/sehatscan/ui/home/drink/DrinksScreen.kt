@@ -1,6 +1,9 @@
 package com.healthy.sehatscan.ui.home.drink
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -31,11 +34,13 @@ import com.healthy.sehatscan.data.remote.drink.response.DrinkItem
 import com.healthy.sehatscan.data.remote.drink.response.DrinkRecommendReqBody
 import com.healthy.sehatscan.utility.LoadingDialog
 
-@OptIn(ExperimentalMaterial3AdaptiveApi::class)
+@OptIn(ExperimentalMaterial3AdaptiveApi::class, ExperimentalSharedTransitionApi::class)
 @Composable
 fun DrinksScreen(
     navController: NavHostController,
-    fruit: String?
+    fruit: String?,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope
 ) {
     val context = LocalContext.current
     val viewModel: DrinkViewModel = hiltViewModel()
@@ -84,7 +89,14 @@ fun DrinksScreen(
             detailPane = {
                 val content = navigator.currentDestination?.content
                 AnimatedPane {
-                    DrinkDetailScreen(navigator, viewModel, content)
+                    DrinkDetailScreen(
+                        navigator,
+                        navController,
+                        viewModel,
+                        content,
+                        sharedTransitionScope,
+                        animatedContentScope
+                    )
                 }
             }
         )

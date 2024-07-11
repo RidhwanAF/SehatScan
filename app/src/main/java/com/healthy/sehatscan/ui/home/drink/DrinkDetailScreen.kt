@@ -1,9 +1,14 @@
 package com.healthy.sehatscan.ui.home.drink
 
+import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -47,23 +52,29 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
 import com.healthy.sehatscan.R
 import com.healthy.sehatscan.data.remote.drink.response.DrinkItem
 import com.healthy.sehatscan.data.remote.drink.response.FavoriteDrink
+import com.healthy.sehatscan.navigation.Route
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalMaterial3AdaptiveApi::class,
+    ExperimentalSharedTransitionApi::class
+)
 @Composable
 fun DrinkDetailScreen(
     navigator: ThreePaneScaffoldNavigator<DrinkItem>,
+    navController: NavHostController,
     viewModel: DrinkViewModel,
-    drinkItem: DrinkItem?
+    drinkItem: DrinkItem?,
+    sharedTransitionScope: SharedTransitionScope,
+    animatedContentScope: AnimatedContentScope
 ) {
     val context = LocalContext.current
     val scrollState = rememberScrollState()
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val painter =
-        rememberAsyncImagePainter(model = "https://assets.clevelandclinic.org/transform/47cdb246-3c9d-4efb-8b3b-1e6b85567a16/Fruit-Juice-155376375-770x533-1_jpg") // TODO: Change Image Drink
 
     // Data
     val favoriteList by viewModel.favoriteDrink.collectAsStateWithLifecycle()
@@ -117,6 +128,11 @@ fun DrinkDetailScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         if (drinkItem != null) {
+            val urlImg =
+                "https://thumb.photo-ac.com/13/130ecf0d1b3cbb04e38c509600e5f289_t.jpeg" //TODO
+            val painter =
+                rememberAsyncImagePainter(model = urlImg) // TODO: Change Image Drink
+
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier
@@ -124,14 +140,31 @@ fun DrinkDetailScreen(
                     .verticalScroll(scrollState)
                     .padding(innerPadding)
             ) {
-                Image(
-                    painter = painter,
-                    contentDescription = drinkItem.drinkName,
-                    contentScale = ContentScale.FillWidth,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp)
-                )
+                with(sharedTransitionScope) {
+                    Image(
+                        painter = painter,
+                        contentDescription = drinkItem.drinkName,
+                        contentScale = ContentScale.FillWidth,
+                        modifier = Modifier
+                            .sharedElement(
+                                state = rememberSharedContentState(key = "full-screen-image-${urlImg}"),
+                                animatedVisibilityScope = animatedContentScope,
+                                placeHolderSize = SharedTransitionScope.PlaceHolderSize.animatedSize
+                            )
+                            .fillMaxWidth()
+                            .height(250.dp)
+                            .clickable {
+                                navController.navigate(
+                                    Route.ImageViewer(
+                                        urlImg,
+                                        drinkItem.drinkName ?: "drink"
+                                    )
+                                ) {
+                                    launchSingleTop = true
+                                }
+                            }
+                    )
+                }
                 Column(
                     modifier = Modifier.padding(horizontal = 16.dp)
                 ) {
@@ -140,7 +173,34 @@ fun DrinkDetailScreen(
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp
                     )
-                    Text(text = drinkItem.description ?: "")
+                    Spacer(modifier = Modifier.height(16.dp))
+                    drinkItem.description?.let {
+                        Text(
+                            text = stringResource(R.string.description),
+                            fontWeight = FontWeight.Medium
+                        )
+                        Text(text = it)
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+                    if (drinkItem.ingredients?.isNotEmpty() == true) {
+                        Text(
+                            text = stringResource(R.string.ingredients),
+                            fontWeight = FontWeight.Medium
+                        )
+                        drinkItem.ingredients.forEach { ingredient ->
+                            Text(text = "- ${ingredient.fruitName ?: ""}")
+                            if (ingredient.listNutrition?.isNotEmpty() == true) {
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = stringResource(R.string.nutrition),
+                                    fontWeight = FontWeight.Medium
+                                )
+                                ingredient.listNutrition.forEach { nutrition ->
+                                    Text(text = "  - ${nutrition.nutritionName ?: ""}")
+                                }
+                            }
+                        }
+                    }
                 }
             }
         } else {

@@ -1,20 +1,19 @@
 package com.healthy.sehatscan.ui.home.drink
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -46,7 +46,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.SubcomposeAsyncImage
 import com.healthy.sehatscan.R
 import com.healthy.sehatscan.data.remote.drink.response.DrinkItem
 import com.healthy.sehatscan.data.remote.drink.response.DrinkRecommendReqBody
@@ -161,27 +161,43 @@ fun DrinkListScreen(
 
 @Composable
 fun DrinkRecommendItem(data: DrinkItem, onItemClicked: () -> Unit) {
-    val painter =
-        rememberAsyncImagePainter(model = "https://assets.clevelandclinic.org/transform/47cdb246-3c9d-4efb-8b3b-1e6b85567a16/Fruit-Juice-155376375-770x533-1_jpg") // TODO: Change Image Drink
-
-    Card(modifier = Modifier.padding(vertical = 8.dp)) {
+    Card(onClick = { onItemClicked() }, modifier = Modifier.padding(vertical = 8.dp)) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(150.dp)
-                .clickable { onItemClicked() }
         ) {
-            Image(
-                painter = painter,
+            SubcomposeAsyncImage(
+                model = "https://thumb.photo-ac.com/13/130ecf0d1b3cbb04e38c509600e5f289_t.jpeg", // TODO: Change Image
                 contentDescription = data.drinkName,
                 contentScale = ContentScale.Crop,
+                loading = {
+                    Box(modifier = Modifier.shimmer()) {
+                        Box(
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.onBackground)
+                                .fillMaxHeight()
+                                .aspectRatio(1f)
+                        )
+                    }
+                },
+                error = {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_broken_image),
+                        contentDescription = stringResource(
+                            R.string.failed_to_load_image
+                        ),
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                },
+                clipToBounds = true,
                 modifier = Modifier
-                    .width(150.dp)
                     .fillMaxHeight()
+                    .aspectRatio(1f)
             )
             Column(
-                verticalArrangement = Arrangement.SpaceAround,
+                verticalArrangement = Arrangement.Top,
                 modifier = Modifier
                     .fillMaxHeight()
                     .weight(1f)
@@ -194,11 +210,11 @@ fun DrinkRecommendItem(data: DrinkItem, onItemClicked: () -> Unit) {
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = data.description ?: "",
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    fontWeight = FontWeight.Light
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }

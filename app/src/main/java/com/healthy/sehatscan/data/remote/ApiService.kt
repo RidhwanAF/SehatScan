@@ -9,6 +9,7 @@ import com.healthy.sehatscan.data.remote.drink.response.DrinkResponse
 import com.healthy.sehatscan.data.remote.drink.response.FavoriteDrink
 import com.healthy.sehatscan.data.remote.drink.response.HistoryDrink
 import com.healthy.sehatscan.data.remote.fruit.response.FruitResponse
+import com.healthy.sehatscan.data.remote.fruit.response.GetFruitDetailResponse
 import com.healthy.sehatscan.data.remote.user.response.UpdateAllergiesResponse
 import com.healthy.sehatscan.data.remote.user.response.UpdateDiseaseResponse
 import com.healthy.sehatscan.data.remote.user.response.UserProfileData
@@ -71,6 +72,13 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body requestBody: List<Int>
     ): Response<UpdateDiseaseResponse>
+
+    // Fruit
+    @GET("api/v1/fruit")
+    suspend fun getFruitDetail(
+        @Header("Authorization") token: String,
+        @Query("keyword") keyword: String
+    ): Response<GetFruitDetailResponse>
 
     // Drink
     @POST("api/v1/predict")
