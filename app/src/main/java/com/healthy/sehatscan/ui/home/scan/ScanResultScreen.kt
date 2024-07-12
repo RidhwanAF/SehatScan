@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -36,6 +37,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
@@ -216,20 +218,37 @@ fun ScanResultScreen(
                                 .fillMaxWidth()
                                 .padding(16.dp)
                         ) {
-                            fruitDetail?.let { data ->
-                                Text(
-                                    text = data.fruitName ?: "",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 20.sp
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                if (data.listFruitNutrition?.isNotEmpty() == true) {
+                            if (fruitDetail != null) {
+                                fruitDetail?.let { data ->
                                     Text(
-                                        text = stringResource(R.string.nutrition),
-                                        fontWeight = FontWeight.Medium
+                                        text = data.fruitName ?: "",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 20.sp
                                     )
-                                    data.listFruitNutrition.forEach { nutrition ->
-                                        Text(text = "- ${nutrition.nutritionName ?: ""}")
+                                    Spacer(modifier = Modifier.height(16.dp))
+                                    if (data.listFruitNutrition?.isNotEmpty() == true) {
+                                        Text(
+                                            text = stringResource(R.string.nutrition),
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                        data.listFruitNutrition.forEach { nutrition ->
+                                            Text(text = "- ${nutrition.nutritionName ?: ""}")
+                                        }
+                                    }
+                                }
+                            } else {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(16.dp)
+                                ) {
+                                    Text(text = stringResource(R.string.no_data))
+                                    Button(onClick = {
+                                        viewModel.clearFruitDetailState()
+                                        navController.navigateUp()
+                                    }) {
+                                        Text(text = stringResource(R.string.scan_again))
                                     }
                                 }
                             }
