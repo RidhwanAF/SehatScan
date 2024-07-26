@@ -113,11 +113,8 @@ fun FavoriteDetailScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         if (favoriteData != null) {
-
-            val urlImg =
-                "https://thumb.photo-ac.com/13/130ecf0d1b3cbb04e38c509600e5f289_t.jpeg" //TODO
             val painter =
-                rememberAsyncImagePainter(model = urlImg) // TODO: Change Image Drink
+                rememberAsyncImagePainter(model = favoriteData.image) // TODO: Change Image Drink
 
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -133,7 +130,7 @@ fun FavoriteDetailScreen(
                         contentScale = ContentScale.FillWidth,
                         modifier = Modifier
                             .sharedElement(
-                                state = rememberSharedContentState(key = "full-screen-image-${urlImg}"),
+                                state = rememberSharedContentState(key = "full-screen-image-${favoriteData.image}"),
                                 animatedVisibilityScope = animatedContentScope,
                                 placeHolderSize = SharedTransitionScope.PlaceHolderSize.animatedSize
                             )
@@ -142,7 +139,7 @@ fun FavoriteDetailScreen(
                             .clickable {
                                 navController.navigate(
                                     Route.ImageViewer(
-                                        urlImg,
+                                        favoriteData.image ?: "",
                                         favoriteData.drinkName ?: "favorite",
                                     )
                                 ) {

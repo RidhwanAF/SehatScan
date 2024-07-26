@@ -99,14 +99,16 @@ fun ScanResultScreen(
             floatingActionButtonPosition = FabPosition.Center,
             floatingActionButton = {
                 viewModel.scanResult?.let {
-                    ExtendedFloatingActionButton(
-                        onClick = {
-                            navController.navigate(Route.Drink(it.name)) {
-                                launchSingleTop = true
+                    if (fruitDetail != null) {
+                        ExtendedFloatingActionButton(
+                            onClick = {
+                                navController.navigate(Route.Drink(it.name)) {
+                                    launchSingleTop = true
+                                }
                             }
+                        ) {
+                            Text(text = stringResource(R.string.get_recommendation))
                         }
-                    ) {
-                        Text(text = stringResource(R.string.get_recommendation))
                     }
                 }
             },
@@ -238,6 +240,7 @@ fun ScanResultScreen(
                                 }
                             } else {
                                 Column(
+                                    verticalArrangement = Arrangement.spacedBy(16.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     modifier = Modifier
                                         .fillMaxWidth()

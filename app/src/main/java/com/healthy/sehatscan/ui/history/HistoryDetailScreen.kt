@@ -88,10 +88,7 @@ fun HistoryDetailScreen(
     ) { innerPadding ->
         if (drink != null) {
             drink.drink.let {
-                val urlImg =
-                    "https://thumb.photo-ac.com/13/130ecf0d1b3cbb04e38c509600e5f289_t.jpeg" //TODO
-                val painter =
-                    rememberAsyncImagePainter(model = urlImg) // TODO: Change Image Drink
+                val painter = rememberAsyncImagePainter(model = it?.image)
 
                 Column(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -107,7 +104,7 @@ fun HistoryDetailScreen(
                             contentScale = ContentScale.FillWidth,
                             modifier = Modifier
                                 .sharedElement(
-                                    state = rememberSharedContentState(key = "full-screen-image-${urlImg}"),
+                                    state = rememberSharedContentState(key = "full-screen-image-${it?.image}"),
                                     animatedVisibilityScope = animatedContentScope,
                                     placeHolderSize = SharedTransitionScope.PlaceHolderSize.animatedSize
                                 )
@@ -116,7 +113,7 @@ fun HistoryDetailScreen(
                                 .clickable {
                                     navController.navigate(
                                         Route.ImageViewer(
-                                            urlImg,
+                                            it?.image ?: "",
                                             it?.drinkName ?: "history"
                                         )
                                     ) {
@@ -134,12 +131,12 @@ fun HistoryDetailScreen(
                             fontSize = 20.sp
                         )
                         Spacer(modifier = Modifier.height(16.dp))
-                        it?.description?.let {
+                        it?.description?.let { desc ->
                             Text(
                                 text = stringResource(R.string.description),
                                 fontWeight = FontWeight.Medium
                             )
-                            Text(text = it)
+                            Text(text = desc)
                         }
                         Spacer(modifier = Modifier.height(16.dp))
                         if (it?.ingredients?.isNotEmpty() == true) {

@@ -36,6 +36,8 @@ class HistoryDrink {
         val drinkId: Int? = null,
         @field:SerializedName("drink_name")
         val drinkName: String? = null,
+        @field:SerializedName("image")
+        val image: String? = null,
         @field:SerializedName("description")
         val description: String? = null,
         @field:SerializedName("ingredients")

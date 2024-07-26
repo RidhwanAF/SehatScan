@@ -245,7 +245,7 @@ fun HistoryListItem(
                     .height(150.dp)
             ) {
                 SubcomposeAsyncImage(
-                    model = "https://thumb.photo-ac.com/13/130ecf0d1b3cbb04e38c509600e5f289_t.jpeg", // TODO: Change Image
+                    model = item.drink?.image,
                     contentDescription = item.drink?.drinkName,
                     contentScale = ContentScale.Crop,
                     loading = {

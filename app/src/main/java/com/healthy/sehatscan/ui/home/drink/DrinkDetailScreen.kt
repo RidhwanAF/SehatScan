@@ -128,10 +128,7 @@ fun DrinkDetailScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
         if (drinkItem != null) {
-            val urlImg =
-                "https://thumb.photo-ac.com/13/130ecf0d1b3cbb04e38c509600e5f289_t.jpeg" //TODO
-            val painter =
-                rememberAsyncImagePainter(model = urlImg) // TODO: Change Image Drink
+            val painter = rememberAsyncImagePainter(model = drinkItem.image)
 
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -147,7 +144,7 @@ fun DrinkDetailScreen(
                         contentScale = ContentScale.FillWidth,
                         modifier = Modifier
                             .sharedElement(
-                                state = rememberSharedContentState(key = "full-screen-image-${urlImg}"),
+                                state = rememberSharedContentState(key = "full-screen-image-${drinkItem.image}"),
                                 animatedVisibilityScope = animatedContentScope,
                                 placeHolderSize = SharedTransitionScope.PlaceHolderSize.animatedSize
                             )
@@ -156,7 +153,7 @@ fun DrinkDetailScreen(
                             .clickable {
                                 navController.navigate(
                                     Route.ImageViewer(
-                                        urlImg,
+                                        drinkItem.image ?: "",
                                         drinkItem.drinkName ?: "drink"
                                     )
                                 ) {
