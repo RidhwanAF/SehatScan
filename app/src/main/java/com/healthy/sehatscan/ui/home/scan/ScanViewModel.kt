@@ -53,7 +53,7 @@ class ScanViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             try {
                 authDataStore.getTokenPreferenceState().collect { token ->
-                    val response = apiService.getFruitDetail("Bearer $token", fruitName)
+                    val response = apiService.getFruitDetail("Bearer $token", fruitName.trim())
                     if (response.isSuccessful) {
                         _fruitDetail.value = response.body()?.data?.firstOrNull()
                         _isFruitLoading.value = false
