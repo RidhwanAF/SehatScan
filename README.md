@@ -1,5 +1,4 @@
-Sehat Scan
-an Android app that uses the camera to scan fruits with TensorFlow and recommends juice recipes based on the scanned fruits and user's allergies or health conditions.
+Sehat Scan is an Android app that uses the camera to scan fruits with TensorFlow and recommends juice recipes based on the scanned fruits and user's allergies or health conditions.
 
 Screenshot
 ![project-sehat-scan](https://github.com/user-attachments/assets/a51a3cbc-e875-4e44-af45-e6793f0a5efe)
